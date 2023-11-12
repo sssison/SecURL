@@ -414,7 +414,7 @@ def predict_maliciousness(url):
 
     match pipeline.predict([list(numerical_values.values())]):
         case 0:
-            return "Benigh"
+            return "Benign"
         case 1:
             return "Defacement"
         case 2:

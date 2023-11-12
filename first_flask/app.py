@@ -69,18 +69,18 @@ def api_delete(id):
 @app.route('/securl', methods=['GET'])
 def check_url():
 
-    # prediction = predict_maliciousness("https://facebook.com")
-
     inp_url = "(example url)"
     if 'inp_url' in request.args:
         inp_url = request.args['inp_url']
+
+    prediction = predict_maliciousness(inp_url)
     random_score = randint(0,100)
     return dict(
         status=200,
         score=random_score,
         safety=(random_score>60),
         url=inp_url,
-        message="Practice only! Let's say this is a safe URL!"
+        message=("The model thought it was " + prediction)
     )
 
 if __name__ == '__main__':
