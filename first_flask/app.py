@@ -1,6 +1,7 @@
 import flask
 from flask import request, jsonify
 from random import randint
+from model import predict_maliciousness
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -67,6 +68,9 @@ def api_delete(id):
 
 @app.route('/securl', methods=['GET'])
 def check_url():
+
+    # prediction = predict_maliciousness("https://facebook.com")
+
     inp_url = "(example url)"
     if 'inp_url' in request.args:
         inp_url = request.args['inp_url']
