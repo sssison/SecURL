@@ -18,6 +18,7 @@
     "default_icon": "img/hello_extensions.png"
   },
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ]
 }
