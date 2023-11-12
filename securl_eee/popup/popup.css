@@ -1,0 +1,32 @@
+/* FONT AND LIBRARY IMPORTS AT THE START  */
+/* -------------------------------------  */
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    padding: 20px;
+    width: 250px;
+}
+
+h1#title{
+    text-align: center;
+    font-size: 1.375rem;
+    line-height: 1.5rem;
+    margin-bottom: 10px;
+}
+
+p{
+    text-align: justify;
+    margin-bottom: 7px;
+}
+
+button#test-req{
+    display: flex;
+    margin: 0 auto;
+    background-color: lightcyan;
+    padding: 6px 14px;
+}

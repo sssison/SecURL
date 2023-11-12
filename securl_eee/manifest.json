@@ -1,0 +1,23 @@
+{
+  "name": "SecURL: Malicious URL Detector",
+  "description": "A final-year project under the EEE curriculum, brought to you by EJ Benavides, Luiz Bencio, and Steven Sison",
+  "version": "1.0",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "scripts/content.js"
+      ]
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": "img/hello_extensions.png"
+  },
+  "permissions": [
+    "activeTab"
+  ]
+}
