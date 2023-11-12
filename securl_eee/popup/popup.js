@@ -30,8 +30,34 @@ async function sendTestRequest() {
             console.log('Request failed', error);
         });
     
-    document.getElementById("test-response-span").innerText = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);
-    document.getElementById("test-url-span").innerText = response_json["url"]
+    chrome.storage.local.get(
+        { blacklist: [] },
+        (items) => {
+            document.getElementById("test-url-span").innerText = response_json["url"];
+            var x = 0;
+            var blacklisted = false;
+            var urlMessage = "";
+            for (var x=0; x<items.blacklist.length; x++){
+                if(response_json["url"].includes(items.blacklist[x])){
+                    blacklisted = true;
+                    break;
+                }
+            }
+            if (blacklisted){
+                urlMessage = "This site was blacklisted!";
+            } else {
+                // urlMessage = response_json["message"];
+                urlMessage = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);;
+            }
+            document.getElementById("test-response-span").innerText = urlMessage;
+            // document.getElementById('status').innerText = "I like blacklist: " + items.blacklist.toString();
+            // document.getElementById('like').checked = items.likesColor;
+            // document.getElementById('blacklist-input').value = items.blacklist.join("\n");
+        }
+    );
+    // document.getElementById("test-response-span").innerText = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);
+    // document.getElementById("test-url-span").innerText = response_json["url"];
+    
     // if(response_json!==null){
     //     console.log("Succeeded response body: ");
     //     console.log(response_json["body"]);
