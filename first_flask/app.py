@@ -2,6 +2,7 @@ import flask
 from flask import request, jsonify
 from random import randint
 from model import predict_maliciousness
+from time import time
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -73,13 +74,17 @@ def check_url():
     if 'inp_url' in request.args:
         inp_url = request.args['inp_url']
 
+    # check time
+    time_start = time()
     prediction = predict_maliciousness(inp_url)
+    time_end = time()
     random_score = randint(0,100)
     return dict(
         status=200,
         score=random_score,
         safety=(random_score>60),
         url=inp_url,
+        time=(time_end-time_start),
         message=("The model thought it was " + prediction)
     )
 

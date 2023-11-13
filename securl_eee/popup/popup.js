@@ -46,10 +46,11 @@ async function sendTestRequest() {
             if (blacklisted){
                 urlMessage = "This site was blacklisted!";
             } else {
-                // urlMessage = response_json["message"];
-                urlMessage = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);;
+                urlMessage = response_json["message"];
+                // urlMessage = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);;
             }
             document.getElementById("test-response-span").innerText = urlMessage;
+            document.getElementById("time-span").innerText = (response_json["time"].toFixed(4) + " seconds");
             // document.getElementById('status').innerText = "I like blacklist: " + items.blacklist.toString();
             // document.getElementById('like').checked = items.likesColor;
             // document.getElementById('blacklist-input').value = items.blacklist.join("\n");
