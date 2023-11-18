@@ -6,6 +6,8 @@ import urllib.parse
 # Special char count function (dunno which special characters to include)
 # Entropy of URL string function (dunno what this is yet)
 # Geolocation of URL host function
+# Domain based functions
+# Alexa rank of url function
 
 def get_letter_count(url):
     """
