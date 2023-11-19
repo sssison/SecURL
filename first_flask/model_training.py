@@ -49,6 +49,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import temp_featuregen
+import feature_generation
 
 # Load the Dataset
 dataset = pd.read_csv('malicious_phish.csv')
@@ -77,6 +78,54 @@ print("Feature 4 Done...")
 
 dataset['special_char_count'] = dataset['url'].apply(lambda x: temp_featuregen.count_special_chars(x))
 print("Feature 5 Done...")
+
+# Features 6 to 20
+# Can probably make features 6 to 17 an iterative process
+
+dataset['._count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '.'))
+print("Feature 6 Done...")
+
+dataset['-_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '-'))
+print("Feature 7 Done...")
+
+dataset['__count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '_'))
+print("Feature 8 Done...")
+
+dataset['=_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '='))
+print("Feature 9 Done...")
+
+dataset['/_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '/'))
+print("Feature 10 Done...")
+
+dataset['?_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '?'))
+print("Feature 11 Done...")
+
+dataset[';_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, ';'))
+print("Feature 12 Done...")
+
+dataset['(_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '('))
+print("Feature 13 Done...")
+
+dataset[')_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, ')'))
+print("Feature 14 Done...")
+
+dataset['%_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '%'))
+print("Feature 15 Done...")
+
+dataset['&_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '&'))
+print("Feature 16 Done...")
+
+dataset['@_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '@'))
+print("Feature 17 Done...")
+
+dataset['tld'] = dataset['url'].apply(lambda x: feature_generation.get_tld(urlparse(x)))
+print("Feature 18 Done...")
+
+dataset['ip_address'] = dataset['url'].apply(lambda x: feature_generation.get_ip(urlparse(x)))
+print("Feature 19 Done...")
+
+dataset['query_len'] = dataset['url'].apply(lambda x: feature_generation.get_query_len(urlparse(x)))
+print("Feature 20 Done...")
 
 # Dropping type and url
 dataset = dataset.drop(columns = ['url', 'type'])
