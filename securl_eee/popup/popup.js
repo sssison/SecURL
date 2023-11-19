@@ -3,6 +3,9 @@ console.log('This is a popup!');
 document.getElementById("test-req").addEventListener("click", sendTestRequest); //or add method for testing only!
 
 async function sendTestRequest() {
+    var startTime, endTime, endTime2;
+    startTime = performance.now();
+
     console.log('This button was clicked!');
     // url = "http://localhost:5000/securl";
     // inp_url: "https://www.google.com"
@@ -13,7 +16,8 @@ async function sendTestRequest() {
         });
     console.log(url);
         
-    var response_json = null;    
+    var response_json = null;
+    endTime = performance.now();   
     await fetch(url, {
         method: 'GET',
     })
@@ -49,8 +53,11 @@ async function sendTestRequest() {
                 urlMessage = response_json["message"];
                 // urlMessage = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);;
             }
+            endTime2 = performance.now()
             document.getElementById("test-response-span").innerText = urlMessage;
             document.getElementById("time-span").innerText = (response_json["time"].toFixed(4) + " seconds");
+            document.getElementById("setup-span").innerText = (((endTime - startTime) / 1000).toFixed(4) + " seconds");
+            document.getElementById("req-span").innerText = (((endTime2 - startTime) / 1000).toFixed(4) + " seconds");
             // document.getElementById('status').innerText = "I like blacklist: " + items.blacklist.toString();
             // document.getElementById('like').checked = items.likesColor;
             // document.getElementById('blacklist-input').value = items.blacklist.join("\n");
