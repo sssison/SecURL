@@ -121,7 +121,7 @@ print("Feature 17 Done...")
 dataset['tld'] = dataset['url'].apply(lambda x: feature_generation.get_tld(urlparse(x)))
 print("Feature 18 Done...")
 
-dataset['ip_address'] = dataset['url'].apply(lambda x: feature_generation.get_ip(urlparse(x)))
+dataset['.exe_presence'] = dataset['url'].apply(lambda x: feature_generation.get_word_presence(x, '.exe'))
 print("Feature 19 Done...")
 
 dataset['query_len'] = dataset['url'].apply(lambda x: feature_generation.get_query_len(urlparse(x)))
