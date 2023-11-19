@@ -50,6 +50,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import temp_featuregen
 import feature_generation
+import time
 
 # Load the Dataset
 dataset = pd.read_csv('malicious_phish.csv')
@@ -118,14 +119,14 @@ print("Feature 16 Done...")
 dataset['@_count'] = dataset['url'].apply(lambda x: feature_generation.get_char_count(x, '@'))
 print("Feature 17 Done...")
 
-dataset['tld'] = dataset['url'].apply(lambda x: feature_generation.get_tld(urlparse(x)))
-print("Feature 18 Done...")
+# dataset['tld'] = dataset['url'].apply(lambda x: feature_generation.get_tld(urlparse(x)))
+# print("Feature 18 Done...")
 
-dataset['ip_address'] = dataset['url'].apply(lambda x: feature_generation.get_ip(urlparse(x)))
-print("Feature 19 Done...")
+# dataset['ip_address'] = dataset['url'].apply(lambda x: feature_generation.get_ip(urlparse(x)))
+# print("Feature 19 Done...")
 
-dataset['query_len'] = dataset['url'].apply(lambda x: feature_generation.get_query_len(urlparse(x)))
-print("Feature 20 Done...")
+# dataset['query_len'] = dataset['url'].apply(lambda x: feature_generation.get_query_len(urlparse(x)))
+# print("Feature 20 Done...")
 
 # Dropping type and url
 dataset = dataset.drop(columns = ['url', 'type'])
@@ -143,22 +144,31 @@ url_features_train,url_features_test,url_type_train,url_type_test = train_test_s
 print("Dataset Divided...")
 
 results = []
+
+print("Starting Training...")
 for i in range(4):
     pipeline = Pipeline([('classifier', RandomForestClassifier())])
 
-    temp_url_features = url_features.iloc[:, 0:i+1]
-    print(temp_url_features.head())
+    temp_url_features = url_features.iloc[:, 0:(4*(i+1))]
 
     scores = cross_val_score(pipeline, temp_url_features, url_type, cv = 2, scoring = 'accuracy')
+
+    start = time.perf_counter()
+
     url_type_predict = cross_val_predict(pipeline, temp_url_features, url_type, cv=2)
+
+    end = time.perf_counter()
+
+    prediction_time = start-end
+
     accuracy = accuracy_score(url_type, url_type_predict)
     recall = recall_score(url_type, url_type_predict, average = 'weighted')
     precision = precision_score(url_type, url_type_predict, average = 'weighted', zero_division=1)
     f1 = f1_score(url_type, url_type_predict, average = 'weighted')
-    results.append((i+1, accuracy, recall, precision, f1))
-    print("Iteration {0} Done...".format(i+1))
+    results.append(((4*(i+1)), accuracy, recall, precision, f1, prediction_time))
+    print("Model {0} Done...".format(i+1))
 
-results = pd.DataFrame(results, columns=['Number of Features', 'Accuracy', 'Recall', 'Precision', 'F1-Score'])
+results = pd.DataFrame(results, columns=['Number of Features', 'Accuracy', 'Recall', 'Precision', 'F1-Score', 'Prediction Time'])
 results = results.sort_values(by='Accuracy', ascending=False)
 print(results.head())
 
