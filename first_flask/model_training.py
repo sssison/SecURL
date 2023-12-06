@@ -155,11 +155,12 @@ for i in range(4):
 
     start = time.perf_counter()
 
+    scores = cross_val_score(pipeline, temp_url_features, url_type, cv = 2, scoring = 'accuracy')
     url_type_predict = cross_val_predict(pipeline, temp_url_features, url_type, cv=2)
 
     end = time.perf_counter()
 
-    prediction_time = start-end
+    prediction_time = end-start
 
     accuracy = accuracy_score(url_type, url_type_predict)
     recall = recall_score(url_type, url_type_predict, average = 'weighted')
@@ -168,7 +169,7 @@ for i in range(4):
     results.append(((4*(i+1)), accuracy, recall, precision, f1, prediction_time))
     print("Model {0} Done...".format(i+1))
 
-results = pd.DataFrame(results, columns=['Number of Features', 'Accuracy', 'Recall', 'Precision', 'F1-Score', 'Prediction Time'])
+results = pd.DataFrame(results, columns=['Number of Features', 'Accuracy', 'Recall', 'Precision', 'F1-Score', 'Training Time'])
 results = results.sort_values(by='Accuracy', ascending=False)
 print(results.head())
 
