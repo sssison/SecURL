@@ -151,8 +151,6 @@ for i in range(4):
 
     temp_url_features = url_features.iloc[:, 0:(4*(i+1))]
 
-    scores = cross_val_score(pipeline, temp_url_features, url_type, cv = 2, scoring = 'accuracy')
-
     start = time.perf_counter()
 
     scores = cross_val_score(pipeline, temp_url_features, url_type, cv = 2, scoring = 'accuracy')
