@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import temp_featuregen
 import temp_featuregen_2
 
-dataset = pd.read_csv("final_dataset_noFeatures.csv")
+dataset = pd.read_csv("final_unbalanced_noFeatures.csv")
 
 dataset["url_type"] = dataset["type"].replace({
     'benign':0,
@@ -76,5 +76,5 @@ dataset = dataset.drop(columns = ['url', 'type'])
 print("Removing Duplicates")
 dataset.drop_duplicates(inplace = True)
 
-dataset.to_csv("temp_dataset_withFeatures.csv", encoding='utf-8', index=False)
-dataset.to_csv("../03_machine-learning-model/temp_dataset_withFeatures.csv", encoding='utf-8', index=False)
+dataset.to_csv("temp_unbalanced_withFeatures.csv", encoding='utf-8', index=False)
+dataset.to_csv("../03_machine-learning-model/temp_unbalanced_withFeatures.csv", encoding='utf-8', index=False)
