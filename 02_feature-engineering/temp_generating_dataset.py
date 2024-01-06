@@ -11,7 +11,7 @@ dataset["url_type"] = dataset["type"].replace({
     'benign':0,
     'defacement':1,
     'phishing':2,
-    'malware':3
+    'malware':3,
 });
 print("Type Replaced...")
 
@@ -70,11 +70,19 @@ print("Feature 16 Done...")
 dataset['@_count'] = dataset['url'].apply(lambda x: temp_featuregen_2.get_char_count(x, '@'))
 print("Feature 17 Done...")
 
+print(dataset['type'].value_counts())
+
+print("Removing Duplicates")
+dataset.drop_duplicates(inplace = True, keep='first')
+
+print(dataset['type'].value_counts())
+
 # Dropping type and url
 dataset = dataset.drop(columns = ['url', 'type'])
 
-print("Removing Duplicates")
-dataset.drop_duplicates(inplace = True)
+
+
+
 
 dataset.to_csv("temp_unbalanced_withFeatures.csv", encoding='utf-8', index=False)
 dataset.to_csv("../03_machine-learning-model/temp_unbalanced_withFeatures.csv", encoding='utf-8', index=False)
