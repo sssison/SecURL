@@ -50,369 +50,267 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import time
 
-def get_numerical_values(url):
-    url = url.replace('www.', '')
-    url_len = get_url_length(url)
-    letters_count = count_letters(url)
-    digits_count  = count_digits(url)
-    special_chars_count = count_special_chars(url)
-    shortened = has_shortening_service(url)
-    abnormal = abnormal_url(url)
-    secure_https = secure_http(url)
-    have_ip = have_ip_address(url)
-    
-    parsed_url  = urlparse(url)
-    root_domain = parsed_url.netloc.split(".")[-2]
-    url_region = get_url_region(root_domain)
-    
-    return {
-        'url_len': url_len,
-        'letters_count': letters_count,
-        'digits_count': digits_count,
-        'special_chars_count': special_chars_count,
-        'shortened': shortened,
-        'abnormal': abnormal,
-        'secure_http': secure_https,
-        'have_ip': have_ip,
-        'url_region': hash_encode(url_region),
-        'root_domain': hash_encode(root_domain)
-    }
+import feature_generation_lexical_function
 
-def get_url_length(url):
-    return len(url)
-def extract_pri_domain(url):
-    try:
-        res = get_tld(url, as_object = True, fail_silently=False,fix_protocol=True)
-        pri_domain= res.parsed_url.netloc
-    except :
-        pri_domain= None
-    return pri_domain
-def count_letters(url):
-    num_letters = sum(char.isalpha() for char in url)
-    return num_letters
+def generator(url):
 
-def count_digits(url):
-    num_digits = sum(char.isdigit() for char in url)
-    return num_digits
-def count_special_chars(url):
-    special_chars = "!@#$%^&*()_+-=[]{};:,.<>/?`~|"
-    num_special_chars = sum(char in special_chars for char in url)
-    return num_special_chars
-def has_shortening_service(url):
-    pattern = re.compile(r'bit\.ly|goo\.gl|shorte\.st|go2l\.ink|x\.co|ow\.ly|t\.co|tinyurl|tr\.im|is\.gd|cli\.gs|'
-                         r'yfrog\.com|migre\.me|ff\.im|tiny\.cc|url4\.eu|twit\.ac|su\.pr|twurl\.nl|snipurl\.com|'
-                         r'short\.to|BudURL\.com|ping\.fm|post\.ly|Just\.as|bkite\.com|snipr\.com|fic\.kr|loopt\.us|'
-                         r'doiop\.com|short\.ie|kl\.am|wp\.me|rubyurl\.com|om\.ly|to\.ly|bit\.do|t\.co|lnkd\.in|'
-                         r'db\.tt|qr\.ae|adf\.ly|goo\.gl|bitly\.com|cur\.lv|tinyurl\.com|ow\.ly|bit\.ly|ity\.im|'
-                         r'q\.gs|is\.gd|po\.st|bc\.vc|twitthis\.com|u\.to|j\.mp|buzurl\.com|cutt\.us|u\.bb|yourls\.org|'
-                         r'x\.co|prettylinkpro\.com|scrnch\.me|filoops\.info|vzturl\.com|qr\.net|1url\.com|tweez\.me|v\.gd|'
-                         r'tr\.im|link\.zip\.net')
-    match = pattern.search(url)
-    return int(bool(match))
-def abnormal_url(url):
-    parsed_url = urlparse(url)
-    hostname = parsed_url.hostname
-    if hostname:
-        hostname = str(hostname)
-        match = re.search(hostname, url)
-        if match:
-            return 1
-    return 0
-def secure_http(url):
-    scheme = urlparse(url).scheme
-    if scheme == 'https':
-        return 1
-    else:
-        return 0
-def have_ip_address(url):
-    pattern = r'(([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.' \
-              r'([01]?\d\d?|2[0-4]\d|25[0-5])\/)|' \
-              r'(([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.([01]?\d\d?|2[0-4]\d|25[0-5])\.' \
-              r'([01]?\d\d?|2[0-4]\d|25[0-5])\/)|' \
-              r'((0x[0-9a-fA-F]{1,2})\.(0x[0-9a-fA-F]{1,2})\.(0x[0-9a-fA-F]{1,2})\.(0x[0-9a-fA-F]{1,2})\/)' \
-              r'(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}|' \
-              r'([0-9]+(?:\.[0-9]+){3}:[0-9]+)|' \
-              r'((?:(?:\d|[01]?\d\d|2[0-4]\d|25[0-5])\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d|\d)(?:\/\d{1,2})?)'
+    temp = [[url]]
+    url_test = pd.DataFrame(temp, columns=['url'])
 
-    match = re.search(pattern, url)
-    if match:
-        return 1
-    else:
-        return 0
-def get_url_region(primary_domain):
-    ccTLD_to_region = {
-    ".ac": "Ascension Island",
-    ".ad": "Andorra",
-    ".ae": "United Arab Emirates",
-    ".af": "Afghanistan",
-    ".ag": "Antigua and Barbuda",
-    ".ai": "Anguilla",
-    ".al": "Albania",
-    ".am": "Armenia",
-    ".an": "Netherlands Antilles",
-    ".ao": "Angola",
-    ".aq": "Antarctica",
-    ".ar": "Argentina",
-    ".as": "American Samoa",
-    ".at": "Austria",
-    ".au": "Australia",
-    ".aw": "Aruba",
-    ".ax": "Åland Islands",
-    ".az": "Azerbaijan",
-    ".ba": "Bosnia and Herzegovina",
-    ".bb": "Barbados",
-    ".bd": "Bangladesh",
-    ".be": "Belgium",
-    ".bf": "Burkina Faso",
-    ".bg": "Bulgaria",
-    ".bh": "Bahrain",
-    ".bi": "Burundi",
-    ".bj": "Benin",
-    ".bm": "Bermuda",
-    ".bn": "Brunei Darussalam",
-    ".bo": "Bolivia",
-    ".br": "Brazil",
-    ".bs": "Bahamas",
-    ".bt": "Bhutan",
-    ".bv": "Bouvet Island",
-    ".bw": "Botswana",
-    ".by": "Belarus",
-    ".bz": "Belize",
-    ".ca": "Canada",
-    ".cc": "Cocos Islands",
-    ".cd": "Democratic Republic of the Congo",
-    ".cf": "Central African Republic",
-    ".cg": "Republic of the Congo",
-    ".ch": "Switzerland",
-    ".ci": "Côte d'Ivoire",
-    ".ck": "Cook Islands",
-    ".cl": "Chile",
-    ".cm": "Cameroon",
-    ".cn": "China",
-    ".co": "Colombia",
-    ".cr": "Costa Rica",
-    ".cu": "Cuba",
-    ".cv": "Cape Verde",
-    ".cw": "Curaçao",
-    ".cx": "Christmas Island",
-    ".cy": "Cyprus",
-    ".cz": "Czech Republic",
-    ".de": "Germany",
-    ".dj": "Djibouti",
-    ".dk": "Denmark",
-    ".dm": "Dominica",
-    ".do": "Dominican Republic",
-    ".dz": "Algeria",
-    ".ec": "Ecuador",
-    ".ee": "Estonia",
-    ".eg": "Egypt",
-    ".er": "Eritrea",
-    ".es": "Spain",
-    ".et": "Ethiopia",
-    ".eu": "European Union",
-    ".fi": "Finland",
-    ".fj": "Fiji",
-    ".fk": "Falkland Islands",
-    ".fm": "Federated States of Micronesia",
-    ".fo": "Faroe Islands",
-    ".fr": "France",
-    ".ga": "Gabon",
-    ".gb": "United Kingdom",
-    ".gd": "Grenada",
-    ".ge": "Georgia",
-    ".gf": "French Guiana",
-    ".gg": "Guernsey",
-    ".gh": "Ghana",
-    ".gi": "Gibraltar",
-    ".gl": "Greenland",
-    ".gm": "Gambia",
-    ".gn": "Guinea",
-    ".gp": "Guadeloupe",
-    ".gq": "Equatorial Guinea",
-    ".gr": "Greece",
-    ".gs": "South Georgia and the South Sandwich Islands",
-    ".gt": "Guatemala",
-    ".gu": "Guam",
-    ".gw": "Guinea-Bissau",
-    ".gy": "Guyana",
-    ".hk": "Hong Kong",
-    ".hm": "Heard Island and McDonald Islands",
-    ".hn": "Honduras",
-    ".hr": "Croatia",
-    ".ht": "Haiti",
-    ".hu": "Hungary",
-    ".id": "Indonesia",
-    ".ie": "Ireland",
-    ".il": "Israel",
-    ".im": "Isle of Man",
-    ".in": "India",
-    ".io": "British Indian Ocean Territory",
-    ".iq": "Iraq",
-    ".ir": "Iran",
-    ".is": "Iceland",
-    ".it": "Italy",
-    ".je": "Jersey",
-    ".jm": "Jamaica",
-    ".jo": "Jordan",
-    ".jp": "Japan",
-    ".ke": "Kenya",
-    ".kg": "Kyrgyzstan",
-    ".kh": "Cambodia",
-    ".ki": "Kiribati",
-    ".km": "Comoros",
-    ".kn": "Saint Kitts and Nevis",
-    ".kp": "Democratic People's Republic of Korea (North Korea)",
-    ".kr": "Republic of Korea (South Korea)",
-    ".kw": "Kuwait",
-    ".ky": "Cayman Islands",
-    ".kz": "Kazakhstan",
-    ".la": "Laos",
-    ".lb": "Lebanon",
-    ".lc": "Saint Lucia",
-    ".li": "Liechtenstein",
-    ".lk": "Sri Lanka",
-    ".lr": "Liberia",
-    ".ls": "Lesotho",
-    ".lt": "Lithuania",
-    ".lu": "Luxembourg",
-    ".lv": "Latvia",
-    ".ly": "Libya",
-    ".ma": "Morocco",
-    ".mc": "Monaco",
-    ".md": "Moldova",
-    ".me": "Montenegro",
-    ".mf": "Saint Martin (French part)",
-    ".mg": "Madagascar",
-    ".mh": "Marshall Islands",
-    ".mk": "North Macedonia",
-    ".ml": "Mali",
-    ".mm": "Myanmar",
-    ".mn": "Mongolia",
-    ".mo": "Macao",
-    ".mp": "Northern Mariana Islands",
-    ".mq": "Martinique",
-    ".mr": "Mauritania",
-    ".ms": "Montserrat",
-    ".mt": "Malta",
-    ".mu": "Mauritius",
-    ".mv": "Maldives",
-    ".mw": "Malawi",
-    ".mx": "Mexico",
-    ".my": "Malaysia",
-    ".mz": "Mozambique",
-    ".na": "Namibia",
-    ".nc": "New Caledonia",
-    ".ne": "Niger",
-    ".nf": "Norfolk Island",
-    ".ng": "Nigeria",
-    ".ni": "Nicaragua",
-    ".nl": "Netherlands",
-    ".no": "Norway",
-    ".np": "Nepal",
-    ".nr": "Nauru",
-    ".nu": "Niue",
-    ".nz": "New Zealand",
-    ".om": "Oman",
-    ".pa": "Panama",
-    ".pe": "Peru",
-    ".pf": "French Polynesia",
-    ".pg": "Papua New Guinea",
-    ".ph": "Philippines",
-    ".pk": "Pakistan",
-    ".pl": "Poland",
-    ".pm": "Saint Pierre and Miquelon",
-    ".pn": "Pitcairn",
-    ".pr": "Puerto Rico",
-    ".ps": "Palestinian Territory",
-    ".pt": "Portugal",
-    ".pw": "Palau",
-    ".py": "Paraguay",
-    ".qa": "Qatar",
-    ".re": "Réunion",
-    ".ro": "Romania",
-    ".rs": "Serbia",
-    ".ru": "Russia",
-    ".rw": "Rwanda",
-    ".sa": "Saudi Arabia",
-    ".sb": "Solomon Islands",
-    ".sc": "Seychelles",
-    ".sd": "Sudan",
-    ".se": "Sweden",
-    ".sg": "Singapore",
-    ".sh": "Saint Helena",
-    ".si": "Slovenia",
-    ".sj": "Svalbard and Jan Mayen",
-    ".sk": "Slovakia",
-    ".sl": "Sierra Leone",
-    ".sm": "San Marino",
-    ".sn": "Senegal",
-    ".so": "Somalia",
-    ".sr": "Suriname",
-    ".ss": "South Sudan",
-    ".st": "São Tomé and Príncipe",
-    ".sv": "El Salvador",
-    ".sx": "Sint Maarten (Dutch part)",
-    ".sy": "Syria",
-    ".sz": "Eswatini",
-    ".tc": "Turks and Caicos Islands",
-    ".td": "Chad",
-    ".tf": "French Southern Territories",
-    ".tg": "Togo",
-    ".th": "Thailand",
-    ".tj": "Tajikistan",
-    ".tk": "Tokelau",
-    ".tl": "Timor-Leste",
-    ".tm": "Turkmenistan",
-    ".tn": "Tunisia",
-    ".to": "Tonga",
-    ".tr": "Turkey",
-    ".tt": "Trinidad and Tobago",
-    ".tv": "Tuvalu",
-    ".tw": "Taiwan",
-    ".tz": "Tanzania",
-    ".ua": "Ukraine",
-    ".ug": "Uganda",
-    ".uk": "United Kingdom",
-    ".us": "United States",
-    ".uy": "Uruguay",
-    ".uz": "Uzbekistan",
-    ".va": "Vatican City",
-    ".vc": "Saint Vincent and the Grenadines",
-    ".ve": "Venezuela",
-    ".vg": "British Virgin Islands",
-    ".vi": "U.S. Virgin Islands",
-    ".vn": "Vietnam",
-    ".vu": "Vanuatu",
-    ".wf": "Wallis and Futuna",
-    ".ws": "Samoa",
-    ".ye": "Yemen",
-    ".yt": "Mayotte",
-    ".za": "South Africa",
-    ".zm": "Zambia",
-    ".zw": "Zimbabwe"
-    }
-    
-    for ccTLD in ccTLD_to_region:
-        if primary_domain.endswith(ccTLD):
-            return ccTLD_to_region[ccTLD]
-    
-    return "Global"
-def extract_root_domain(url):
-    extracted = tldextract.extract(url)
-    root_domain = extracted.domain
-    return root_domain
-def hash_encode(category):
-    hash_object = hashlib.md5(category.encode())
-    return int(hash_object.hexdigest(), 16) % (10 ** 8)
+    print("First 10 Features")
+    print("------------------")
+    url_test['url_length'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_length(x))
+    print("Feature 1 Done...")
+
+    url_test['url_ip_in_domain'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_ip_in_domain(x))
+    print("Feature 2 Done...")
+
+    url_test['url_domain_entropy'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_domain_entropy(x))
+    print("Feature 3 Done...")
+
+    url_test['url_is_digits_in_domain'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_is_digits_in_domain(x))
+    print("Feature 4 Done...")
+
+    url_test['url_query_length'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_query_length(x))
+    print("Feature 5 Done...")
+
+    url_test['url_number_of_parameters'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_number_of_parameters(x))
+    print("Feature 6 Done...")
+
+    url_test['url_number_of_digits'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_number_of_digits(x))
+    print("Feature 7 Done...")
+
+    url_test['url_string_entropy'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_string_entropy(x))
+    print("Feature 8 Done...")
+
+    url_test['url_is_https'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_is_https(x))
+    print("Feature 9 Done...")
+
+    url_test['url_path_length'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_path_length(x))
+    print("Feature 10 Done...")
+
+    print("Features 11-20")
+    print("------------------")
+    url_test['url_host_length'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_host_length(x))
+    print("Feature 11 Done...")
+
+    url_test['url_number_of_subdirectories'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_number_of_subdirectories(x))
+    print("Feature 12 Done...")
+
+    url_test['get_tld'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.get_tld(x))
+    print("Feature 13 Done...")
+
+    url_test['url_domain_len'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_domain_len(x))
+    print("Feature 14 Done...")
+
+    url_test['url_num_subdomain'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_subdomain(x))
+    print("Feature 15 Done...")
+
+    url_test['url_has_port'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_has_port(x))
+    print("Feature 16 Done...")
+
+    url_test['url_number_of_fragments'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_number_of_fragments(x))
+    print("Feature 17 Done...")
+
+    url_test['url_is_encoded'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_is_encoded(x))
+    print("Feature 18 Done...")
+
+    url_test['url_number_of_letters'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_number_of_letters(x))
+    print("Feature 19 Done...")
+
+    url_test['url_num_periods'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_periods(x))
+    print("Feature 20 Done...")
+
+    print("Features 21-30")
+    print("------------------")
+    url_test['url_num_of_hyphens'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_of_hyphens(x))
+    print("Feature 21 Done...")
+
+    url_test['url_num_underscore'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_underscore(x))
+    print("Feature 22 Done...")
+
+    url_test['url_num_equal'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_equal(x))
+    print("Feature 23 Done...")
+
+    url_test['url_num_forward_slash'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_forward_slash(x))
+    print("Feature 24 Done...")
+
+    url_test['url_num_question_mark'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_question_mark(x))
+    print("Feature 25 Done...")
+
+    url_test['url_num_semicolon'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_semicolon(x))
+    print("Feature 26 Done...")
+
+    url_test['url_num_open_parenthesis'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_open_parenthesis(x))
+    print("Feature 27 Done...")
+
+    url_test['url_num_close_parenthesis'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_close_parenthesis(x))
+    print("Feature 28 Done...")
+
+    url_test['url_num_mod_sign'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_mod_sign(x))
+    print("Feature 29 Done...")
+
+    url_test['url_num_ampersand'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_ampersand(x))
+    print("Feature 30 Done...")
+
+    print("Features 31-40")
+    print("------------------")
+    url_test['url_num_at'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_at(x))
+    print("Feature 31 Done...")
+
+    url_test['has_secure_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_secure_in_string(x))
+    print("Feature 32 Done...")
+
+    url_test['has_account_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_account_in_string(x))
+    print("Feature 33 Done...")
+
+    url_test['has_webscr_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_webscr_in_string(x))
+    print("Feature 34 Done...")
+
+    url_test['has_login_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_login_in_string(x))
+    print("Feature 35 Done...")
+
+    url_test['has_ebayisapi_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_ebayisapi_in_string(x))
+    print("Feature 36 Done...")
+
+    url_test['has_signin_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_signin_in_string(x))
+    print("Feature 37 Done...")
+
+    url_test['has_banking_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_banking_in_string(x))
+    print("Feature 38 Done...")
+
+    url_test['has_confirm_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_confirm_in_string(x))
+    print("Feature 39 Done...")
+
+    url_test['has_blog_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_blog_in_string(x))
+    print("Feature 40 Done...")
+
+    print("Features 41-50")
+    print("------------------")
+    url_test['has_logon_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_logon_in_string(x))
+    print("Feature 41 Done...")
+
+    url_test['has_signon_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_signon_in_string(x))
+    print("Feature 42 Done...")
+
+    url_test['has_loginasp_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_loginasp_in_string(x))
+    print("Feature 43 Done...")
+
+    url_test['has_loginphp_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_loginphp_in_string(x))
+    print("Feature 44 Done...")
+
+    url_test['has_loginhtm_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_loginhtm_in_string(x))
+    print("Feature 45 Done...")
+
+    url_test['has_exe_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_exe_in_string(x))
+    print("Feature 46 Done...")
+
+    url_test['has_zip_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_zip_in_string(x))
+    print("Feature 47 Done...")
+
+    url_test['has_rar_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_rar_in_string(x))
+    print("Feature 48 Done...")
+
+    url_test['has_jpg_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_jpg_in_string(x))
+    print("Feature 49 Done...")
+
+    url_test['has_gif_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_gif_in_string(x))
+    print("Feature 50 Done...")
+
+    print("Features 51-60")
+    print("------------------")
+    url_test['has_viewerphp_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_viewerphp_in_string(x))
+    print("Feature 51 Done...")
+
+    url_test['has_linkeq_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_linkeq_in_string(x))
+    print("Feature 52 Done...")
+
+    url_test['has_getImageasp_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_getImageasp_in_string(x))
+    print("Feature 53 Done...")
+
+    url_test['has_plugins_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_plugins_in_string(x))
+    print("Feature 54 Done...")
+
+    url_test['has_paypal_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_paypal_in_string(x))
+    print("Feature 55 Done...")
+
+    url_test['has_order_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_order_in_string(x))
+    print("Feature 56 Done...")
+
+    url_test['has_dbsysphp_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_dbsysphp_in_string(x))
+    print("Feature 57 Done...")
+
+    url_test['has_configbin_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_configbin_in_string(x))
+    print("Feature 58 Done...")
+
+    url_test['has_downloadphp_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_downloadphp_in_string(x))
+    print("Feature 59 Done...")
+
+    url_test['has_js_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_js_in_string(x))
+    print("Feature 60 Done...")
+
+    print("Features 61-70")
+    print("------------------")
+    url_test['has_payment_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_payment_in_string(x))
+    print("Feature 61 Done...")
+
+    url_test['has_files_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_files_in_string(x))
+    print("Feature 62 Done...")
+
+    url_test['has_css_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_css_in_string(x))
+    print("Feature 63 Done...")
+
+    url_test['has_shopping_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_shopping_in_string(x))
+    print("Feature 64 Done...")
+
+    url_test['has_mailphp_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_mailphp_in_string(x))
+    print("Feature 65 Done...")
+
+    url_test['has_jar_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_jar_in_string(x))
+    print("Feature 66 Done...")
+
+    url_test['has_swf_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_swf_in_string(x))
+    print("Feature 67 Done...")
+
+    url_test['has_cgi_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_cgi_in_string(x))
+    print("Feature 68 Done...")
+
+    url_test['has_php_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_php_in_string(x))
+    print("Feature 69 Done...")
+
+    url_test['has_abuse_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_abuse_in_string(x))
+    print("Feature 70 Done...")
+
+    print("Features 71-75")
+    print("------------------")
+    url_test['has_admin_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_admin_in_string(x))
+    print("Feature 71 Done...")
+
+    url_test['has_bin_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_bin_in_string(x))
+    print("Feature 72 Done...")
+
+    url_test['has_personal_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_personal_in_string(x))
+    print("Feature 73 Done...")
+
+    url_test['has_update_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_update_in_string(x))
+    print("Feature 74 Done...")
+
+    url_test['has_verification_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_verification_in_string(x))
+    print("Feature 75 Done...")
+
+    url_test = url_test.drop(columns=['url'])
+
+    return url_test
 
 def predict_maliciousness(url):
 
-    pipeline = joblib.load("saved_model.sav")
+    pipeline = joblib.load("finalized_model_lexical.sav")
 
-    numerical_values = get_numerical_values(url)
+    numerical_values = generator(url)
 
-    match pipeline.predict([list(numerical_values.values())]):
+    match pipeline.predict(numerical_values):
         case 0:
             return "Benign"
         case 1:
@@ -421,5 +319,3 @@ def predict_maliciousness(url):
             return "Phishing"
         case 3:
             return "Malware"
-
-

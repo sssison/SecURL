@@ -98,7 +98,7 @@ def url_number_of_subdirectories(url):
 
 def get_tld(url):
   parsed_url = urllib.parse.urlparse(url)
-  return parsed_url.netloc.split('.')[-1].split(':')[0]
+  return hash(parsed_url.netloc.split('.')[-1].split(':')[0])
 
 def url_domain_len(url):
     ext = tldextract.extract(url)
@@ -106,7 +106,7 @@ def url_domain_len(url):
     return len(domain)
 
 def url_num_subdomain(url):
-    return len(url.ext.subdomain.split('.'))
+    return len(tldextract.extract(url).subdomain.split('.'))
 
 def url_has_port(url):
     parsed_url = urllib.parse.urlparse(url)
