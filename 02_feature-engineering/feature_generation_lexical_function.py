@@ -106,7 +106,8 @@ def url_domain_len(url):
     return len(domain)
 
 def url_num_subdomain(url):
-    return len(url.ext.subdomain.split('.'))
+    ext = tldextract.extract(url)
+    return len(ext.subdomain.split('.'))
 
 def url_has_port(url):
     parsed_url = urllib.parse.urlparse(url)
