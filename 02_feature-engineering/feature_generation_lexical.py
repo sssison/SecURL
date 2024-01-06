@@ -4,6 +4,7 @@ from re import compile
 from math import log
 from socket import gethostbyname
 from requests import get
+import tldextract
 
 # TO DO FOR LEXICAL:
 # Number of tokens in URL function
@@ -17,7 +18,9 @@ class LexicalFeatures:
     def __init__(self, url):
         self.url = url
         self.parsedurl = urllib.parse.urlparse(self.url)
-        self.hostname = self.__get_ip()
+        self.ip = self.__get_ip()
+        self.ext = tldextract.extract(self.url)
+        self.domain = self.ext.domain
 
     def __get_entropy(self, text):
         text = text.lower()
@@ -27,7 +30,7 @@ class LexicalFeatures:
     
     def __get_ip(self):
         try:
-            ip = self.parsedurl.netloc if self.url_host_is_ip() else gethostbyname(self.parsedurl.netloc)
+            ip = self.parsedurl.netloc if self.url_ip_in_domain() else gethostbyname(self.parsedurl.netloc)
             return ip
         except:
             return None
@@ -41,17 +44,24 @@ class LexicalFeatures:
 
     def url_length(self):
         return len(self.url)
-
-    '''
-    def url_ip_in_host(self):
-        host = self.parsedurl.netloc
+  
+    def url_ip_in_domain(self):
+        domain = self.parsedurl.netloc
         pattern = compile("^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
-        match = pattern.match(host)
+        match = pattern.match(domain)
         if match != None:
             return 1
         else:
             return 0
-    ''' # not sure if this pertains to host or domain name so i commented it out for now
+
+    def url_domain_entropy(self):
+        return self.__get_entropy(self.domain)
+    
+    def url_is_digits_in_domain(self):
+        for i in self.domain:
+            if i.isdigit():
+                return 1
+        return 0
 
     def url_query_length(self):
         return(len(self.parsedurl.query))
@@ -82,10 +92,8 @@ class LexicalFeatures:
     def url_path_length(self):
         return len(self.parsedurl.path)
 
-    '''
     def url_host_length(self):
         return len(self.parsedurl.netloc)
-    '''    # not sure if this pertains to host or domain name so i commented it out for now
 
     def url_number_of_subdirectories(self):
         d = self.parsedurl.path.split('/')
@@ -93,6 +101,12 @@ class LexicalFeatures:
 
     def get_tld(self):
       return self.parsedurl.netloc.split('.')[-1].split(':')[0]
+
+    def url_domain_len(self):
+        return len(self.domain)
+
+    def url_num_subdomain(self):
+        return len(self.ext.subdomain.split('.'))
 
     def url_has_port(self):
         split_netloc = self.parsedurl.netloc.split(':')
@@ -472,6 +486,7 @@ class LexicalFeatures:
             return 0
 
 if __name__ == "__main__":
-    url = "https://www.kaggle.com/datasets/sid321axn/malicious-urls-dataset/data"
+    url = "qux.bar.foo.example.com"
 
     x = LexicalFeatures(url)
+    print(x.url_num_subdomain())
