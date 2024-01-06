@@ -84,10 +84,10 @@ class LexicalFeatures:
         return self.__get_entropy(self.url)
 
     def url_is_https(self):
-        if self.parsedurl.scheme() == 'https':
+        if self.parsedurl.scheme == 'https':
             return 1
         else:
-            return
+            return 0
 
     def url_path_length(self):
         return len(self.parsedurl.path)
