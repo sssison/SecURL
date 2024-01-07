@@ -1,5 +1,4 @@
 first_flask/venv/
-first_flask/model/
 first_flask/__pycache__/
 first_flask/__pycache__/*
 first_flask/saved_model.sav
