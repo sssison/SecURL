@@ -17,7 +17,7 @@ import joblib
 
 def rf_predict_maliciousness(url, i):
 
-    rf_75 = joblib.load("rf_lexical_{}.sav".format(25*(i+1)))
+    rf_75 = joblib.load("model/rf_lexical_{}.sav".format(25*(i+1)))
 
     numerical_values = lexical_generator.lexical_generator(url)
     numerical_values = numerical_values.iloc[:, 0:(25*(i+1))]
@@ -35,7 +35,7 @@ def rf_predict_maliciousness(url, i):
 def xgb_predict_maliciousness(url, i):
 
     xgb_75 = XGBClassifier()
-    xgb_75.load_model('xgb_lexical_{}.json'.format((25*(i+1))))
+    xgb_75.load_model('model/xgb_lexical_{}.json'.format((25*(i+1))))
 
     numerical_values = lexical_generator.lexical_generator(url)
     numerical_values = numerical_values.iloc[:, 0:(25*(i+1))]
@@ -50,13 +50,14 @@ def xgb_predict_maliciousness(url, i):
         case 3:
             return "Malware"
 
+"""
+### MAIN
 
 rf_results = []
-test_url = "corporationwiki.com/Ohio/Columbus/frank-s-benson-P3333917.aspx"
 
 for i in range(3):
     start = time.perf_counter()
-    prediction = rf_predict_maliciousness(test_url,i)
+    prediction = rf_predict_maliciousness("corporationwiki.com/Ohio/Columbus/frank-s-benson-P3333917.aspx",i)
     end = time.perf_counter()
     rf_results.append(((25*(i+1)), prediction,end-start))
 
@@ -70,7 +71,7 @@ xgb_results = []
 
 for i in range(3):
     start = time.perf_counter()
-    prediction = xgb_predict_maliciousness(test_url,i)
+    prediction = xgb_predict_maliciousness("https://www.overleaf.com/project/657c1e9aa65bd48f6d65f413",i)
     end = time.perf_counter()
     xgb_results.append(((25*(i+1)), prediction,end-start))
 
@@ -78,15 +79,4 @@ xgb_results = pd.DataFrame(xgb_results, columns=['Number of Features','Predictio
 xgb_results = xgb_results.sort_values(by='Number of Features', ascending=True)
 print(xgb_results)
 
-"""print("===========CUSTOM TEST==============")
-newlist = ["https://www.reddit.com/r/ChikaPH/comments/18y5ip1/did_you_know_someone_before_they_became_famous/", "https://www.facebook.com/", "https://uvle.upd.edu.ph/", "https://www.freecodecamp.org/news/check-if-a-javascript-string-is-a-url/", "https://opinion.inquirer.net/161955/three-ways-to-help-fix-the-learning-crisis", "https://www.independent.co.uk/tech/top-100-virusinfected-websites-named-1775399.html", "https://en.wikipedia.org/wiki/Academic_grading_in_the_Philippines", "https://cupofjo.com/2024/01/04/sheer-black-tights-trend-2024/", "https://wolfsgamingblog.com/2023/12/20/all-the-games-coming-out-in-january-2024/", "https://www.forbes.com/sites/robertadams/2017/03/02/top-income-earning-blogs/?sh=7984f4b62377"]
-
-
-for inp_url in newlist:
-    print("Url:",inp_url)
-    for i in range(3):
-        start = time.perf_counter()
-        prediction = xgb_predict_maliciousness(inp_url,2)
-        end = time.perf_counter()
-        print(round(end-start,4))
-    print("---------------")"""
+"""

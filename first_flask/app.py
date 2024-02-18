@@ -3,11 +3,15 @@ from flask import request, jsonify
 from random import randint
 from model import predict_maliciousness
 from time import time
+from lexical_generator import lexical_generator
+from rf_scoretime import rf_predict_maliciousness, xgb_predict_maliciousness
+
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
 # Create some test data for our catalog in the form of a list of dictionaries.
-books = [
+
+"""books = [
     {
         "id": 1,
         "isbn":"9781593279509",
@@ -65,7 +69,7 @@ def api_delete(id):
     for book in books:
         if book['id'] == int(id):
             books.remove(book)
-    return "Success: Book information has been deleted."
+    return "Success: Book information has been deleted."""
 
 @app.route('/securl', methods=['GET'])
 def check_url():
@@ -76,7 +80,8 @@ def check_url():
 
     # check time
     time_start = time()
-    prediction = predict_maliciousness(inp_url)
+    prediction = xgb_predict_maliciousness(inp_url,2)
+    # prediction = rf_predict_maliciousness(inp_url,2)
     time_end = time()
     random_score = randint(0,100)
     return dict(
@@ -85,8 +90,15 @@ def check_url():
         safety=(random_score>60),
         url=inp_url,
         time=(time_end-time_start),
-        message=("The model thought it was " + prediction)
+        message=prediction
     )
+    """
+    Future reference:
+    - for obtaining domain only:
+        from urllib.parse import urlparse
+        domain = urlparse('http://www.example.test.co.uk/foo/bar').netloc
+        print(domain) //// outputs www.example.test.co.uk
+    """
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
