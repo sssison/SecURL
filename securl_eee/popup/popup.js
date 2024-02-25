@@ -48,16 +48,17 @@ async function sendTestRequest() {
                 }
             }
             if (blacklisted){
-                urlMessage = "This site was blacklisted!";
+                urlMessage = "Blacklisted";
             } else {
                 urlMessage = response_json["message"];
                 // urlMessage = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);;
             }
             endTime2 = performance.now()
             document.getElementById("test-response-span").innerText = urlMessage;
-            document.getElementById("time-span").innerText = (response_json["time"].toFixed(4) + " seconds");
-            document.getElementById("setup-span").innerText = (((endTime - startTime) / 1000).toFixed(4) + " seconds");
-            document.getElementById("req-span").innerText = (((endTime2 - startTime) / 1000).toFixed(4) + " seconds");
+            document.getElementById("time-span").innerText = (response_json["time"].toFixed(4) + " sec.");
+            // document.getElementById("setup-span").innerText = (((endTime - startTime) / 1000).toFixed(4) + " seconds");
+            document.getElementById("net-span").innerText = ((((endTime2 - startTime) / 1000) - response_json["time"]).toFixed(4) + " sec.");
+            document.getElementById("req-span").innerText = (((endTime2 - startTime) / 1000).toFixed(4) + " sec.");
             // document.getElementById('status').innerText = "I like blacklist: " + items.blacklist.toString();
             // document.getElementById('like').checked = items.likesColor;
             // document.getElementById('blacklist-input').value = items.blacklist.join("\n");

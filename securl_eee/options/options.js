@@ -38,7 +38,7 @@ const restoreOptions = () => {
     chrome.storage.local.get(
         { blacklist: [] },
         (items) => {
-            document.getElementById('status').innerText = "I like blacklist: " + items.blacklist.toString();
+            // document.getElementById('status').innerText = "I like blacklist: " + items.blacklist.toString();
             // document.getElementById('like').checked = items.likesColor;
             document.getElementById('blacklist-input').value = items.blacklist.join("\n");
         }

@@ -1,27 +1,37 @@
 /* FONT AND LIBRARY IMPORTS AT THE START  */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 /* -------------------------------------  */
 
 *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 body{
     padding: 20px;
     width: 250px;
+    /* border: solid 2px black; */
 }
 
 h1#title{
     text-align: center;
-    font-size: 1.375rem;
+    font-size: 1.3125rem;
     line-height: 1.5rem;
     margin-bottom: 10px;
+    font-weight: 700;
 }
 
 p{
     text-align: justify;
     margin-bottom: 7px;
+    font-size: 0.75rem;
+}
+
+p > span#test-url-span{ /* good for text-wrapping URLs */
+    word-wrap: break-word;
+    word-break: break-all;
 }
 
 button#test-req{
