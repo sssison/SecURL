@@ -3,6 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import feature_generation_lexical_function
+from sklearn.preprocessing import LabelEncoder
 
 dataset = pd.read_csv("final_unbalanced_noFeatures.csv")
 
@@ -237,7 +238,7 @@ print("Feature 69 Done...")
 dataset['has_abuse_in_string'] = dataset['url'].apply(lambda x: feature_generation_lexical_function.has_abuse_in_string(x))
 print("Feature 70 Done...")
 
-print("Features 71-75")
+print("Features 71-76")
 print("------------------")
 dataset['has_admin_in_string'] = dataset['url'].apply(lambda x: feature_generation_lexical_function.has_admin_in_string(x))
 print("Feature 71 Done...")
@@ -254,14 +255,21 @@ print("Feature 74 Done...")
 dataset['has_verification_in_string'] = dataset['url'].apply(lambda x: feature_generation_lexical_function.has_verification_in_string(x))
 print("Feature 75 Done...")
 
+dataset['url_scheme'] = dataset['url'].apply(lambda x: feature_generation_lexical_function.url_scheme(x))
+print("Feature 76 Done...")
+
 print("Removing Duplicates")
 dataset.drop_duplicates(inplace = True, keep='first')
 
 print(dataset['type'].value_counts())
 
+le = LabelEncoder()
+
+dataset['get_tld'] = le.fit_transform(dataset['get_tld'])
+dataset['url_scheme'] = le.fit_transform(dataset['url_scheme'])
+
 # Dropping type and url
 dataset = dataset.drop(columns = ['url', 'type'])
 
 
-dataset.to_csv("final_unbalanced_withLexical.csv", encoding='utf-8', index=False)
-dataset.to_csv("../03_machine-learning-model/final_unbalanced_withLexical.csv", encoding='utf-8', index=False)
+dataset.to_csv("final_unbalanced_with_lexical.csv", encoding='utf-8', index=False)
