@@ -24,6 +24,8 @@ def get_html(url):
         html = html.text if html else None
     except:
         html = None
+    
+    print("Done")
     return html
 
 def get_word_freq_dict(html):
