@@ -6,19 +6,10 @@ import feature_generation_content_function_htmlin
 from datetime import datetime
 from feature_generation_content_function_htmlin import get_html
 
-dataset = pd.read_csv('final_unbalanced_noFeatures.csv')
+dataset = pd.read_csv('dataset_splitN_cleansed.csv') # REPLACE N WITH SPLIT NUMBER
 
-dataset['type'] = dataset['type'].replace({
-    'benign' : 0,
-    'defacement': 1,
-    'phishing': 2,
-    'malware': 3,
-})
-
-dataset['html'] = dataset['url'].apply(lambda x: get_html(x))
 dataset = dataset.dropna()
 
-print(dataset)
 print(dataset.info())
 
 s = datetime.now()
@@ -173,8 +164,9 @@ print('Feature 37 done!')
 
 print('Generation time: ', datetime.now() - s)
 
-dataset = dataset.drop(columns = ['url', 'type', 'html'])
+dataset = dataset.rename(columns = {'type': 'url_type'})
+dataset = dataset.drop(columns = ['url', 'html'])
 
 print(dataset)
 
-dataset.to_csv("final_unbalanced_with_content.csv", encoding='utf-8', index=False)
+dataset.to_csv("splitN_withContent.csv", encoding='utf-8', index=False) # REPLACE N WITH SPLIT NUMBER
