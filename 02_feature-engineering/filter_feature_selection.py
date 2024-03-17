@@ -74,10 +74,28 @@ def correlation_feature_selection(dataset):
                             rowname = corr.index[j]
                             highly_correlated.add((colname, rowname))
 
+       final_correlated = []
+       for i in highly_correlated:
+              correlated = ()
+              for j in i:
+                     correlated += (j, )
+                     for k in highly_correlated:
+                            if j in k and k != i:
+                                   for l in k:
+                                          if l not in correlated:
+                                                 correlated += (l, )
+              for m in correlated:
+                     if any(m in n for n in final_correlated):
+                            pass
+                     else:
+                            final_correlated.append(correlated)
+
+
        #print('Correlated features:' , highly_correlated)
-       corr.to_csv('corr_matrix')
+       corr.to_csv('corr_matrix.csv', encoding='utf-8')
+       #pd.option_context('display.max_rows', None, 'display.max_columns', None)
        #print(corr)
-       return(highly_correlated)
+       return(final_correlated)
 
 if __name__ == '__main__':
        features, f_scores = anova_feature_selection('final_unbalanced_with_lexical.csv')
