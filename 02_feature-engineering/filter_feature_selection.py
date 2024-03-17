@@ -71,8 +71,8 @@ def correlation_feature_selection(dataset):
               for j in range(i):
                      if abs(corr.iloc[i, j]) > corr_threshold:
                             colname = corr.columns[i]
-                            highly_correlated.add(colname)
-                            highly_correlated.add(corr.index[j])
+                            rowname = corr.index[j]
+                            highly_correlated.add((colname, rowname))
 
        #print('Correlated features:' , highly_correlated)
        corr.to_csv('corr_matrix')
