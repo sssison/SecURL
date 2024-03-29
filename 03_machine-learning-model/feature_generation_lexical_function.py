@@ -24,8 +24,6 @@ def get_ip(url):
 
 def url_scheme(url):   # Requires label encoding
     parsed_url = urllib.parse.urlparse(url)
-    print(url)
-    print(parsed_url)
     return parsed_url.scheme()
 
 def url_length(url):
