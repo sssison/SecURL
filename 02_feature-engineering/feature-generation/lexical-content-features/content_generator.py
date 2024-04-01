@@ -260,6 +260,6 @@ def feature_generator(url):
 
     url_test['has_click_in_html'] = url_test['html'].apply(lambda x: feature_generation_content_function_htmlin.has_click_in_html(x))
 
-    url_test = url_test.drop(columns=['url'])
+    url_test = url_test.drop(columns=['url', 'html'])
 
     return url_test
