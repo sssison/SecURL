@@ -5,14 +5,7 @@ import matplotlib.pyplot as plt
 import feature_generation_lexical_function
 from sklearn.preprocessing import LabelEncoder
 
-dataset = pd.read_csv("final_unbalanced_noFeatures.csv")
-
-dataset["url_type"] = dataset["type"].replace({
-    'benign':0,
-    'defacement':1,
-    'phishing':2,
-    'malware':3,
-});
+dataset = pd.read_csv("urldata.csv")
 
 print("First 10 Features")
 print("------------------")
