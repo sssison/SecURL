@@ -11,7 +11,9 @@ async function sendTestRequest() {
     // inp_url: "https://www.google.com"
     var currUrl = await getCurrentTab();
     currUrl = currUrl["url"];
-    url = "http://localhost:5000/securl?" + new URLSearchParams({
+    var serverUrl = "http://10.158.66.12:5000/securl?"
+    // var serverUrl = "http://localhost:5000/securl?"
+    url = serverUrl + new URLSearchParams({
             inp_url: currUrl
         });
     console.log(url);
