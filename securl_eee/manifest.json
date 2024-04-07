@@ -13,6 +13,9 @@
       ]
     }
   ],
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
   "action": {
     "default_popup": "popup/popup.html",
     "default_icon": "img/hello_extensions.png"
@@ -20,6 +23,7 @@
   "options_page": "options/options.html",
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "webNavigation"
   ]
 }

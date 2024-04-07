@@ -71,6 +71,11 @@ def api_delete(id):
             books.remove(book)
     return "Success: Book information has been deleted."""
 
+@app.route('/', methods=['GET'])
+def home():
+    return '''<h1>SecURL API Framework</h1>
+                <p>A flask api implementation for SecURL.   </p>'''
+
 @app.route('/securl', methods=['GET'])
 def check_url():
 

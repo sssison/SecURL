@@ -13,7 +13,7 @@ newBanner.style.fontSize = "1.25rem";
 newBanner.style.fontFamily = "Arial, sans-serif";
 newBanner.innerText = "This is a div! Try something new here";
 
-// document.body.appendChild(newBanner);
+document.body.appendChild(newBanner);
 /*
     position: fixed;
     z-index: 1000;
@@ -25,3 +25,18 @@ newBanner.innerText = "This is a div! Try something new here";
 */
 // alert(`SecURL detected URL: ${window.location.toString()}`);
 // console.log();
+
+// ! ChatGPT suggestion
+// content.js
+chrome.storage.local.get(['randomNumber'], function (result) {
+    const randomNumber = result.randomNumber;
+  
+    // // Check the random number and redirect accordingly
+    // if (randomNumber <= 5) {
+    //   // Redirect to URL1
+    //   window.location.href = 'https://example.com/url1';
+    // } else {
+    //   // Redirect to URL2
+    //   window.location.href = 'https://example.com/url2';
+    // }
+  });

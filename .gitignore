@@ -5,3 +5,4 @@ first_flask/saved_model.sav
 *.sav
 02_feature-engineering/final_unbalanced_withLexical.csv
 03_machine-learning-model/final_unbalanced_withLexical.csv
+practice
