@@ -10,16 +10,17 @@ async function sendTestRequest() {
     // url = "http://localhost:5000/securl";
     // inp_url: "https://www.google.com"
     var currUrl = await getCurrentTab();
+    var isEnhancedSec = await getIsEnhancedSec();
     currUrl = currUrl["url"];
     var serverUrl = "http://10.158.66.12:5000/securl?"
-    // var serverUrl = "http://localhost:5000/securl?"
     url = serverUrl + new URLSearchParams({
-            inp_url: currUrl
-        });
+        inp_url: currUrl,
+        is_secure: (isEnhancedSec ? "enabled" : "disabled")
+    });
     console.log(url);
-        
+
     var response_json = null;
-    endTime = performance.now();   
+    endTime = performance.now();
     await fetch(url, {
         method: 'GET',
     })
@@ -35,7 +36,7 @@ async function sendTestRequest() {
         .catch(function (error) {
             console.log('Request failed', error);
         });
-    
+
     chrome.storage.local.get(
         { blacklist: [] },
         (items) => {
@@ -43,13 +44,13 @@ async function sendTestRequest() {
             var x = 0;
             var blacklisted = false;
             var urlMessage = "";
-            for (var x=0; x<items.blacklist.length; x++){
-                if(response_json["url"].includes(items.blacklist[x])){
+            for (var x = 0; x < items.blacklist.length; x++) {
+                if (response_json["url"].includes(items.blacklist[x])) {
                     blacklisted = true;
                     break;
                 }
             }
-            if (blacklisted){
+            if (blacklisted) {
                 urlMessage = "Blacklisted";
             } else {
                 urlMessage = response_json["message"];
@@ -68,12 +69,12 @@ async function sendTestRequest() {
     );
     // document.getElementById("test-response-span").innerText = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);
     // document.getElementById("test-url-span").innerText = response_json["url"];
-    
+
     // if(response_json!==null){
     //     console.log("Succeeded response body: ");
     //     console.log(response_json["body"]);
     // }
-        
+
     /*
         NOTES:
         ? the returned value of fetch after running response.json() is still a Promise, not JSON
@@ -96,4 +97,10 @@ async function getCurrentTab() {
     // `tab` will either be a `tabs.Tab` instance or `undefined`.
     let [tab] = await chrome.tabs.query(queryOptions);
     return tab;
-  }
+}
+
+async function getIsEnhancedSec() {
+    let fetchEnhancedFromLocal = await chrome.storage.local.get({ enhanced_sec: false });
+    // returns an object: {enhanced_sec: <true/false>}
+    return fetchEnhancedFromLocal["enhanced_sec"];
+}

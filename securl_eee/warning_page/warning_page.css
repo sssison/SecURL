@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Kulim Park", "Inter", "Segoe UI", sans-serif;
+}
+body{
+    background: rgb(255,255,255);
+    background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(184,184,184,1) 75%, rgba(84,84,84,1) 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+div.main-container{
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    min-width: 481px;
+    margin: 0 auto;
+    gap: 30px;
+}
+div.warning-box{
+    /* width: 60%;
+    min-width: 481px; */
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+
+    img {
+        width: 60px;
+    }
+    p{
+        text-align: justify;
+    }
+    div.warning-content{
+        margin-bottom: 25px;
+        h2{
+            margin-bottom: 12px;
+        }
+    }
+    div.button-row{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        button#return-page{
+            background-color: #000;
+            border: solid 2px black;
+            border-radius: 30px;
+            font-size: 1rem;
+            color: white;
+            padding: 7px 15px;
+        }
+        button#proceed-page{
+            padding: 7px 15px;
+            border: 0;
+            text-decoration: underline;
+            background-color: rgba(0, 0, 0, 0);
+        }
+    }
+}
+
+div.footer-div{
+    /* margin-top: 20px; */
+    p{
+        text-align: center;
+    }
+}
