@@ -14,7 +14,8 @@ newBanner.style.fontFamily = "Arial, sans-serif";
 newBanner.style.lineHeight = "normal";
 newBanner.innerText = "This is a div! Try something new here";
 
-document.body.appendChild(newBanner);
+// TODO: if you still want to add a banner to every page, uncomment the line below
+// document.body.appendChild(newBanner);
 /*
     position: fixed;
     z-index: 1000;

@@ -94,7 +94,7 @@ def check_url():
     # TODO: replace the algorithms below with lexical-based and content-based detection
     # TEMPORARY: XGB for basic security (is_secure==False), RF for enhanced security (is_secure==True) 
     time_start = time()
-    prediction = xgb_predict_maliciousness(inp_url,2) if is_secure else rf_predict_maliciousness(inp_url,2)
+    prediction = rf_predict_maliciousness(inp_url,2) if is_secure else xgb_predict_maliciousness(inp_url,2)
     
     # prediction = rf_predict_maliciousness(inp_url,2)
     time_end = time()
