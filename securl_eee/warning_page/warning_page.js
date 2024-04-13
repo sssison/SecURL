@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
     // Retrieve current tab ID
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        const tabId = tabs[0].id;
+    chrome.tabs.getCurrent(function (tab) {
+        const tabId = tab.id;
         // Retrieve redirect URL for the current tab from storage
         chrome.storage.local.get("redirectUrls", function(data) {
             const redirectUrls = data.redirectUrls || {};
@@ -18,6 +18,15 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
+
+    /*
+        ALT WAY TO ACCESS THE ACTIVE TAB (SEEN BY USER)
+        ===============================================
+        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+            const tabId = tabs[0].id;
+            ...
+        });
+    */
 
     // Event listener for exit button
     document.getElementById("return-page").addEventListener("click", function () {
