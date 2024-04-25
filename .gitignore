@@ -9,3 +9,5 @@ first_flask/saved_model.sav
 03_machine-learning-model/xgboost/final_unbalanced_withLexical.csv
 02_feature-engineering/dataset_split3_cleansed.csv
 02_feature-engineering/dataset_split4_cleansed.csv
+/02_feature-engineering/dataset-splits_content-based
+/02_feature-engineering/final-datasets

@@ -1,0 +1,14 @@
+first_flask/venv/
+first_flask/first_flask_env/
+first_flask/__pycache__/
+first_flask/__pycache__/*
+first_flask/saved_model.sav
+*.sav
+02_feature-engineering/final_unbalanced_withLexical.csv
+03_machine-learning-model/final_unbalanced_withLexical.csv
+03_machine-learning-model/random-forest/final_unbalanced_withLexical.csv
+03_machine-learning-model/xgboost/final_unbalanced_withLexical.csv
+02_feature-engineering/dataset_split3_cleansed.csv
+02_feature-engineering/dataset_split4_cleansed.csv
+/02_feature-engineering/dataset-splits_content-based
+/02_feature-engineering/final-datasets
