@@ -71,16 +71,31 @@ def api_delete(id):
             books.remove(book)
     return "Success: Book information has been deleted."""
 
+@app.route('/', methods=['GET'])
+def home():
+    return '''<h1>SecURL API Framework</h1>
+                <p>A flask api implementation for SecURL.   </p>'''
+
 @app.route('/securl', methods=['GET'])
 def check_url():
-
+    """
+    Analyzes the URL and checks whether it is malicious or not, based on the result of the trained classifiers
+    """
     inp_url = "(example url)"
+    is_secure = False
+    
     if 'inp_url' in request.args:
         inp_url = request.args['inp_url']
+    
+    if 'is_secure' in request.args:
+        is_secure = (request.args['is_secure']=='enabled')
 
-    # check time
+    # check time and select the algorithm
+    # TODO: replace the algorithms below with lexical-based and content-based detection
+    # TEMPORARY: XGB for basic security (is_secure==False), RF for enhanced security (is_secure==True) 
     time_start = time()
-    prediction = xgb_predict_maliciousness(inp_url,2)
+    prediction = rf_predict_maliciousness(inp_url,2) if is_secure else xgb_predict_maliciousness(inp_url,2)
+    
     # prediction = rf_predict_maliciousness(inp_url,2)
     time_end = time()
     random_score = randint(0,100)

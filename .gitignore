@@ -1,4 +1,5 @@
 first_flask/venv/
+first_flask/first_flask_env/
 first_flask/__pycache__/
 first_flask/__pycache__/*
 first_flask/saved_model.sav
@@ -11,3 +12,4 @@ first_flask/saved_model.sav
 02_feature-engineering/dataset_split4_cleansed.csv
 /02_feature-engineering/dataset-splits_content-based
 /02_feature-engineering/final-datasets
+practice

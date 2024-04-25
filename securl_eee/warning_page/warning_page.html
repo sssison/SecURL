@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Warning: Malicious URL Detected!</title>
+    <link rel="stylesheet" href="warning_page.css" />
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="warning-box">
+            <img src="../img/danger.png"/>
+            <div class="warning-content">
+                <h1>Malicious URL Detected</h1>
+                <h2>Threat: <span class="threat-text">Phishing</span></h2>
+                <p>The SecURL extension scanned the link you just entered and identified it as a possible phishing site. Attackers may be trying to gain access to your private information from this site, so avoid providing sensitive data as much as possible!</p>
+            </div>
+            <div class="button-row">
+                <button id="return-page">Return to previous page</button>
+                <button id="proceed-page">Proceed to link</button>
+            </div>
+            <!-- <p id="status"></p> -->
+        </div>
+        <div class="footer-div">
+            <p id="footer-text">Wrong result on the URL? <a class="report-error-text" href="https://www.google.com/">Report an error!</a></p>
+        </div>
+    </div>
+    <!-- <select id="color">
+        <option value="red">red</option>
+        <option value="green">green</option>
+        <option value="blue">blue</option>
+        <option value="yellow">yellow</option>
+    </select>
+
+    <label>
+        <input type="checkbox" id="like" />
+        I like colors.
+    </label>
+
+    <div id="status"></div> -->
+
+    <script src="warning_page.js"></script>
+</body>
+
+</html>
