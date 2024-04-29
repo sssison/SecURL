@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 import feature_generation_lexical_function
 from sklearn.preprocessing import LabelEncoder
 
-dataset = pd.read_csv("urldata.csv")
+dataset = pd.read_csv("valid-dataset_binary.csv")
+
+dataset['url_type'] = dataset['type']
 
 print("First 10 Features")
 print("------------------")
