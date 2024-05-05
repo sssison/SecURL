@@ -18,10 +18,12 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
     // Check if it's the main frame navigation
     console.log("details");
     console.log(details)
-    var redirectUrls;
+    var redirectUrls, blacklists;
     var isMaliciousUrl = false;
-    chrome.storage.local.get("redirectUrls", function(data) {
+
+    chrome.storage.local.get(["redirectUrls","blacklist"], function(data) {
         redirectUrls = data.redirectUrls || {};
+        blacklists = data.blacklist || {};
 
         // ? access the URL or tab: details.url or  details.tabId
         
@@ -29,18 +31,16 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             // Generate a random number between 1 and 10
             const randomNumber = Math.floor(Math.random() * 10) + 1;
             
-            // ! check whether the URL is malicious or not
-            // if (randomNumber < 5){
-            if (details.url.includes("reddit.com")){
-                isMaliciousUrl = true;
+            // TODO: check whether the URL is blacklisted (automatically malicious)
+            for (var x = 0; x < blacklists.length; x++) {
+                if (details.url.includes(blacklists[x])) {
+                    isMaliciousUrl = true;
+                    break;
+                }
             }
 
-            // console.log('Random number set to ' + randomNumber);
-            console.log('isMaliciousUrl: ' + isMaliciousUrl);
-            // // Store the random number in Chrome storage
-            //// chrome.storage.local.set({ randomNumber: randomNumber }, function () {
-            //     // Log a message to the console indicating that the random number has been set
-            //// });
+            // ! check also whether the URL is malicious or not using the service
+            // TODO: (see above)
             
             // ! update the URL of the tabId
             // redirectUrls[details.tabId] = details.url;
@@ -57,8 +57,9 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 };
             }
 
-            // ! check if user already whitelisted the site OR proceeded to link (coming from warning page)
-            // ! this is checked by skipped: true
+            // ? check if user already whitelisted the site OR proceeded to link (coming from warning page)
+            // ? this is checked by skipped: true
+            // already working!
             
             console.log(`For URL <${details.url}>, skipped=${redirectUrlUpdated["skipped"]} `)
             if (redirectUrlUpdated["skipped"]){

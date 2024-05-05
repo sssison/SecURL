@@ -30,9 +30,10 @@ newBanner.innerText = "This is a div! Try something new here";
 
 // ! ChatGPT suggestion
 // content.js
-chrome.storage.local.get(['randomNumber'], function (result) {
+chrome.storage.local.get(['randomNumber','redirectUrls'], function (result) {
     const randomNumber = result.randomNumber;
-  
+    console.log("random number:" + randomNumber);
+    console.log(result);
     // // Check the random number and redirect accordingly
     // if (randomNumber <= 5) {
     //   // Redirect to URL1
@@ -49,7 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // tabs[0] will contain information about the currently active tab
         const currentTabId = tab.id;
         console.log("Current tab ID:", currentTabId);
-
         // Retrieve malicious URL from storage
         chrome.storage.local.get(["redirectUrls"], function (result) {
             const maliciousURL = result.redirectUrls[currentTabId];

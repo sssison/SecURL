@@ -115,5 +115,22 @@ def check_url():
         print(domain) //// outputs www.example.test.co.uk
     """
 
+@app.route('/securl/feedback', methods=['GET'])
+def feedback_error():
+    """
+    Runs when user marks an incorrect URL detection.
+    Tasks:
+    - condition: if feedback_error is currently running, don't trigger this function first
+    - action: save to database
+    - action: trigger concept drift detection method
+    - condition: if concept drift detected, trigger retraining
+    """
+    
+    # ensure that all necessary properties are already included in HTTP request
+    if not(all(a_prop in request.args for a_prop in ['res_orig','res_correct','url'])) in request.args:
+        return
+    
+    # 
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
