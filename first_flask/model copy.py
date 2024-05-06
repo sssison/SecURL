@@ -306,31 +306,17 @@ def generator(url):
 
 from xgboost import XGBClassifier, DMatrix, train
 from lexical_generator_33 import lexical_generator
-from content_generator_65 import feature_generator
 
+def predict_maliciousness(url):
 
-def predict_maliciousness(url,is_with_content):
-    if (is_with_content):
-        pipeline = joblib.load("model/xgb_wrapper_65_lexical-content.sav")
+    pipeline = joblib.load("model/xgb_wrapper_33_lexical.sav")
 
-        numerical_values = feature_generator(url)
+    numerical_values = lexical_generator(url)
 
-        numerical_values = DMatrix(numerical_values)
+    numerical_values = DMatrix(numerical_values)
 
-        match pipeline.predict(numerical_values):
-            case 0:
-                return "Benign*"
-            case 1:
-                return "Malware*"
-    else:
-        pipeline = joblib.load("model/xgb_wrapper_33_lexical.sav")
-
-        numerical_values = lexical_generator(url)
-
-        numerical_values = DMatrix(numerical_values)
-
-        match pipeline.predict(numerical_values):
-            case 0:
-                return "Benign"
-            case 1:
-                return "Malware"
+    match pipeline.predict(numerical_values):
+        case 0:
+            return "Benign"
+        case 1:
+            return "Malware"

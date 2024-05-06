@@ -5,7 +5,7 @@ from model import predict_maliciousness
 from time import time
 from lexical_generator import lexical_generator
 from rf_scoretime import rf_predict_maliciousness, xgb_predict_maliciousness
-
+from whitelist_checker import is_dom_top
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -90,11 +90,22 @@ def check_url():
     if 'is_secure' in request.args:
         is_secure = (request.args['is_secure']=='enabled')
 
+    # ! temporary: strip off prefixes
+    inp_url = inp_url.replace("https://","",1)
+    inp_url = inp_url.replace("http://","",1)
+
     # check time and select the algorithm
     # TODO: replace the algorithms below with lexical-based and content-based detection
     # TEMPORARY: XGB for basic security (is_secure==False), RF for enhanced security (is_secure==True) 
     time_start = time()
-    prediction = rf_predict_maliciousness(inp_url,2) if is_secure else xgb_predict_maliciousness(inp_url,2)
+    in_td = is_dom_top(inp_url)
+
+    if in_td==1:
+        prediction = "Benign"
+    else:
+        # prediction = rf_predict_maliciousness(inp_url,2) if is_secure else predict_maliciousness(inp_url)
+        prediction = predict_maliciousness(inp_url,is_secure)
+
     
     # prediction = rf_predict_maliciousness(inp_url,2)
     time_end = time()
@@ -114,6 +125,26 @@ def check_url():
         domain = urlparse('http://www.example.test.co.uk/foo/bar').netloc
         print(domain) //// outputs www.example.test.co.uk
     """
+
+@app.route('/securl/feedback', methods=['GET'])
+def report_url():
+    """
+    Receives reports on incorrect detection and saves to SQLite database
+    """
+    inp_url = "(example url)"
+    is_secure = False
+    
+    if 'url' in request.args:
+        inp_url = request.args['url']
+    
+    if 'correct' in request.args:
+        print("Report received!\n")
+        print(f"URL {inp_url} should have been {request.args['correct']} instead of {request.args['predicted']} ")
+
+    return dict(
+        status=200
+    )
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
