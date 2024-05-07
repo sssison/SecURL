@@ -19,11 +19,22 @@ def get_entropy(text):
 def get_html(url):
     try:
         if 'http' not in url:
-            url = 'http://' + url
-        html = get(url, timeout=10)
+            get_url = 'http://' + url
+            html = get(get_url, timeout=1)    
+        else:
+            html = get(url, timeout=1)
         html = html.text if html else None
+        if html == None:
+            try:
+                if 'https' not in url:
+                    get_url = 'https://' + url
+                html = get(get_url, timeout=1)
+                html = html.text if html else None
+            except:
+                html = None
     except:
         html = None
+
     return html
 
 def get_word_freq_dict(html):
