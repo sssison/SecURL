@@ -2,6 +2,7 @@ import pandas as pd
 from mlxtend.feature_selection import SequentialFeatureSelector
 from xgboost import XGBClassifier
 import feature_generation_lexical_function as fgl
+import feature_generation_content_function_htmlin as fgc
 from sklearn.preprocessing import LabelEncoder
 
 def lexical_generation(dataset):
@@ -198,11 +199,132 @@ def lexical_generation(dataset):
 
     return dataset
     
-def content_generation(url_dataset):
-#insert feature dataset generation here
+def content_generation(dataset):
+    print('Generating content-based features...')
+
+    dataset['blank_lines_count'] = None
+    dataset['blank_spaces_count'] = None
+    dataset['word_count'] = None
+    dataset['average_word_len'] = None
+    dataset['webpage_size'] = None
+    dataset['webpage_entropy'] = None
+    dataset['js_count'] = None
+    dataset['sus_js_count'] = None
+    dataset['js_eval_count'] = None
+    dataset['js_escape_count'] = None
+    dataset['js_unescape_count'] = None
+    dataset['js_find_count'] = None
+    dataset['js_exec_count'] = None
+    dataset['js_search_count'] = None
+    dataset['js_link_count'] = None
+    dataset['js_winopen_count'] = None
+    dataset['title_tag_presence'] = None
+    dataset['iframe_count'] = None
+    dataset['hyperlink_count'] = None
+    dataset['embed_tag_count'] = None
+    dataset['object_tag_count'] = None
+    dataset['meta_tag_count'] = None
+    dataset['div_tag_count'] = None
+    dataset['body_tag_count'] = None
+    dataset['form_tag_count'] = None
+    dataset['anchor_tag_count'] = None
+    dataset['applet_tag_count'] = None
+    dataset['input_tag_count'] = None
+    dataset['image_tag_count'] = None
+    dataset['span_tag_count'] = None
+    dataset['audio_tag_count'] = None
+    dataset['has_log_in_html'] = None
+    dataset['has_pay_in_html'] = None
+    dataset['has_free_in_html'] = None
+    dataset['has_access_in_html'] = None
+    dataset['has_bonus_in_html'] = None
+    dataset['has_click_in_html'] = None
+
+    for i in range(len(dataset.index)):
+        url = dataset.iloc[i]['url']
+        html = fgc.get_html(url)
+
+        dataset['blank_lines_count'][i] = fgc.blank_lines_count(html)
+
+        dataset['blank_spaces_count'][i] = fgc.blank_spaces_count(html)
+
+        dataset['word_count'][i] = fgc.word_count(html)
+
+        dataset['average_word_len'][i] = fgc.average_word_len(html)
+
+        dataset['webpage_size'][i] = fgc.webpage_size(html)
+
+        dataset['webpage_entropy'][i] = fgc.webpage_entropy(html)
+
+        dataset['js_count'][i] = fgc.js_count(html)
+
+        dataset['sus_js_count'][i] = fgc.sus_js_count(html)
+
+        dataset['js_eval_count'][i] = fgc.js_eval_count(html)
+
+        dataset['js_escape_count'][i] = fgc.js_escape_count(html)
+
+        dataset['js_unescape_count'][i] = fgc.js_unescape_count(html)
+
+        dataset['js_find_count'][i] = fgc.js_find_count(html)
+
+        dataset['js_exec_count'][i] = fgc.js_exec_count(html)
+
+        dataset['js_search_count'][i] = fgc.js_search_count(html)
+
+        dataset['js_link_count'][i] = fgc.js_link_count(html)
+
+        dataset['js_winopen_count'][i] = fgc.js_winopen_count(html)
+
+        dataset['title_tag_presence'][i] = fgc.title_tag_presence(html)
+
+        dataset['iframe_count'][i] = fgc.iframe_count(html)
+
+        dataset['hyperlink_count'][i] = fgc.hyperlink_count(html)
+
+        dataset['embed_tag_count'][i] = fgc.embed_tag_count(html)
+
+        dataset['object_tag_count'][i] = fgc.object_tag_count(html)
+
+        dataset['meta_tag_count'][i] = fgc.meta_tag_count(html)
+
+        dataset['div_tag_count'][i] = fgc.div_tag_count(html)
+
+        dataset['body_tag_count'][i] = fgc.body_tag_count(html)
+
+        dataset['form_tag_count'][i] = fgc.form_tag_count(html)
+
+        dataset['anchor_tag_count'][i] = fgc.anchor_tag_count(html)
+
+        dataset['applet_tag_count'][i] = fgc.applet_tag_count(html)
+
+        dataset['input_tag_count'][i] = fgc.input_tag_count(html)
+
+        dataset['image_tag_count'][i] = fgc.image_tag_count(html)
+
+        dataset['span_tag_count'][i] = fgc.span_tag_count(html)
+
+        dataset['audio_tag_count'][i] = fgc.audio_tag_count(html)
+
+        dataset['has_log_in_html'][i] = fgc.has_log_in_html(html)
+
+        dataset['has_pay_in_html'][i] = fgc.has_pay_in_html(html)
+
+        dataset['has_free_in_html'][i] = fgc.has_free_in_html(html)
+
+        dataset['has_access_in_html'][i] = fgc.has_access_in_html(html)
+
+        dataset['has_bonus_in_html'][i] = fgc.has_bonus_in_html(html)
+
+        dataset['has_click_in_html'][i] = fgc.has_click_in_html(html)
+    
+    print('Content-based features have been genrated.')
+
+    return dataset
 
 def xgb_ffs(dataset_with_feature_csv):
     dataset = pd.read_csv(dataset_with_feature_csv)
+    # make sure 'url' and 'type' columns have been dropped
     features = dataset.iloc[:, 1:]
     url_type = dataset.iloc[:, 0]
 
