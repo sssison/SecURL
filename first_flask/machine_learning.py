@@ -13,6 +13,11 @@ import optuna
 from sklearn.metrics import mean_squared_error # or any other metric
 from sklearn.model_selection import train_test_split
 
+# For Concept Drift
+from frouros.datasets.synthetic import SEA
+from frouros.detectors.concept_drift import DDM, DDMConfig
+from frouros.metrics.prequential_error import PrequentialError
+
 
 def hyperparameter_tuning(X_train, y_train):
     """
@@ -109,5 +114,93 @@ def model_training(X_train, y_train, X_test, y_test, best_params):
     # Dumping the model
     joblib.dump(xgb_classifier, 'xgb_wrapper_25_lexical-content.sav')
 
-def concept_drift_detector():
+    return
+
+def concept_drift_detector(warm_up, testing):
+    """
+    The function `concept_drift_detector` implements a drift detection algorithm using the DDM method
+    with error metrics and a warm-up phase followed by a detection phase.
     
+    :param warm_up: The `warm_up` parameter in the `concept_drift_detector` function represents the
+    initial dataset used to train the drift detection model. This dataset is used to establish a
+    baseline for the model before testing it on a separate dataset to detect any concept drift
+    :param testing: The `testing` parameter in the `concept_drift_detector` function represents the
+    dataset that you want to test for concept drift. This dataset is used in the detection phase to
+    monitor the model's performance and detect any potential drift in the data distribution. The
+    function iterates through the instances in the `
+    :return: The function `concept_drift_detector` is returning an integer value based on the detection
+    of drift in the input data. If drift is detected during the testing phase, the function returns 1.
+    If no drift is detected, the function returns 0.
+    """
+    
+
+    # Configuring the Detector
+    config = DDMConfig(
+        warning_level=2.0,
+        drift_level=3.0,
+        min_num_instances=len(
+            warm_up.index
+        ),  # Minimum number of instances to start checking for drift
+    )
+
+    detector = DDM(
+        config=config,
+    )
+
+    # Error Metrics
+    metrics = [
+        PrequentialError(
+            alpha=alpha,
+            name=f"alpha={alpha}",
+        )
+        for alpha in [1.0, 0.9999, 0.999]
+    ]
+    metrics_historic_detector = {f"{metric.name}": [] for metric in metrics}
+
+
+    def error_scorer(y_true, y_pred):  # Error function
+        return 1 - (y_true == y_pred)
+
+    # Warm-Up Phase
+    warm_up_predicted = warm_up.iloc[:, 0].tolist()
+    warm_up_actual = warm_up.iloc[:, 0].tolist()
+
+    for y_pred, y_actual in zip(warm_up_predicted, warm_up_actual):
+        error = error_scorer(y_true=y_actual, y_pred=y_pred)
+        _ = detector.update(value=error)
+
+        for metric_historic, metric in zip(metrics_historic_detector.keys(), metrics):
+            metrics_historic_detector[metric_historic].append(metric(error))
+
+    # Detection Phase
+    idx_drift, idx_warning = [], []
+
+    i = len(warm_up.index)
+    test_predicted = testing.iloc[:, 0].tolist()
+    test_actual = testing.iloc[:, 0].tolist()
+
+
+    for y_pred, y_actual in zip(test_predicted, test_actual):
+
+        error = error_scorer(y_true=y_actual, y_pred=y_pred)
+        _ = detector.update(value=error)  # Detector's update
+
+        # All the following lines are optional and only used for plotting the whole process
+        for metric_historic, metric in zip(metrics_historic_detector.keys(), metrics):
+            metrics_historic_detector[metric_historic].append(metric(error))
+
+        status = detector.status
+        if status["drift"]:
+            # Drift detected
+            print(f"Drift detected at index: {i}")
+            idx_drift.append(i)
+            detector.reset()  # Reset detector
+            for metric in metrics:  # Reset metrics
+                metric.reset()
+            return 1  # Stop simulation
+        elif status["warning"]:
+            # Warning zone
+            idx_warning.append(i)
+        i += 1
+    
+    return 0
