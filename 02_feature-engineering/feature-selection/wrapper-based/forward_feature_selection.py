@@ -166,6 +166,10 @@ def lexical_generation(dataset):
     dataset.drop_duplicates(inplace = True, keep='first')
     print('Duplicates removed.')
 
+    print('Removing null data...')
+    dataset = dataset.dropna()
+    print('Null data has been removed.')
+
     print('Applying label encoding...')
     get_tld = dataset['get_tld'].to_list()
     url_scheme = dataset['url_scheme'].to_list()
@@ -319,6 +323,14 @@ def content_generation(dataset):
         dataset['has_click_in_html'][i] = fgc.has_click_in_html(html)
     
     print('Content-based features have been genrated.')
+
+    print('Removing duplicates...')
+    dataset.drop_duplicates(inplace = True, keep='first')
+    print('Duplicates removed.')
+
+    print('Removing null data...')
+    dataset = dataset.dropna()
+    print('Null data has been removed.')
 
     return dataset
 
