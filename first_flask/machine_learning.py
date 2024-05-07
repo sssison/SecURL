@@ -22,16 +22,18 @@ from frouros.metrics.prequential_error import PrequentialError
 def hyperparameter_tuning(X_train, y_train):
     """
     The function `hyperparameter_tuning` uses Optuna to optimize hyperparameters for an XGBoost model
-    with early stopping based on the validation error.
+    with early stopping based on binary hinge loss and error evaluation metric.
     
-    :param X_train: It seems like the description of the X_train parameter is missing. Could you please
-    provide more information about the X_train parameter?
-    :param y_train: It seems like the description of the 'y_train' parameter is missing. Could you
-    please provide more information about the 'y_train' parameter so that I can assist you further with
-    the hyperparameter tuning function?
+    :param X_train: It seems like the input for X_train is missing. If you provide me with the X_train
+    data, I can assist you in running the hyperparameter tuning function for your XGBoost model. Just
+    paste the X_train data here, and I'll help you with the next steps
+    :param y_train: The function `hyperparameter_tuning` you provided is for tuning hyperparameters of
+    an XGBoost model using Optuna. It defines an objective function that Optuna will optimize to find
+    the best hyperparameters for the model
     :return: The function `hyperparameter_tuning` returns the best hyperparameters found by the Optuna
     optimization process.
     """
+    
 
     # Define the objective function for Optuna
     def objective(trial):
