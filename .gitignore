@@ -15,3 +15,4 @@ first_flask/saved_model.sav
 practice
 01_data-preprocessing/top10milliondomainsa.csv
 01_data-preprocessing/top10milliondomains.csv.zip
+first_flask/**/*.csv
