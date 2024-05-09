@@ -1,75 +1,14 @@
 import flask
 from flask import request, jsonify
 from random import randint
-from model import predict_maliciousness
+from first_flask.model_predictor import predict_maliciousness_lexical, predict_maliciousness_content
 from time import time
-from lexical_generator import lexical_generator
-from rf_scoretime import rf_predict_maliciousness, xgb_predict_maliciousness
+import feature_generator
 from whitelist_checker import is_dom_top
+from xgboost import Dmatrix
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
-# Create some test data for our catalog in the form of a list of dictionaries.
-
-"""books = [
-    {
-        "id": 1,
-        "isbn":"9781593279509",
-        "title":"Eloquent JavaScript, Third Edition",
-        "subtitle":"A Modern Introduction to Programming",
-        "author":"Marijn Haverbeke",
-        "published":"2018-12-04T00:00:00.000Z",
-        "publisher":"No Starch Press",
-        "pages":472,
-        "description":"JavaScript lies at the heart of almost every modern web application, from social apps like Twitter to browser-based game frameworks like Phaser and Babylon. Though simple for beginners to pick up and play with, JavaScript is a flexible, complex language that you can use to build full-scale applications.",
-        "website":"http://eloquentjavascript.net/"
-    },
-    {
-        "id": 2,
-        "isbn":"9781491943533",
-        "title":"Practical Modern JavaScript",
-        "subtitle":"Dive into ES6 and the Future of JavaScript",
-        "author":"Nicolás Bevacqua",
-        "published":"2017-07-16T00:00:00.000Z",
-        "publisher":"O'Reilly Media",
-        "pages":334,
-        "description":"To get the most out of modern JavaScript, you need learn the latest features of its parent specification, ECMAScript 6 (ES6). This book provides a highly practical look at ES6, without getting lost in the specification or its implementation details.",
-        "website":"https://github.com/mjavascript/practical-modern-javascript"
-    }
-]
-@app.route('/', methods=['GET'])
-def home():
-    return '''<h1>SecURL API Framework</h1>
-                <p>A flask api implementation for SecURL.   </p>'''
-
-@app.route('/api/v1/books/all', methods=['GET'])
-def api_all():
-    return jsonify(books)
-
-@app.route('/api/v1/books', methods=['GET'])
-def api_id():
-    if 'id' in request.args:
-        id = int(request.args['id'])
-    else:
-        return "Error: No id field provided. Please specify an id."
-    results = []
-    for book in books:
-        if book['id'] == id:
-            results.append(book)
-            return jsonify(results)
-        
-@app.route("/api/v1/books",  methods = ['POST'])
-def api_insert():
-    book = request.get_json()
-    books.append(book)
-    return "Success: Book information has been added."
-
-@app.route("/api/v1/books/<id>", methods=["DELETE"])
-def api_delete(id):
-    for book in books:
-        if book['id'] == int(id):
-            books.remove(book)
-    return "Success: Book information has been deleted."""
 
 @app.route('/', methods=['GET'])
 def home():
@@ -80,13 +19,124 @@ def home():
 def check_url():
     """
     Analyzes the URL and checks whether it is malicious or not, based on the result of the trained classifiers
+    Steps:
+        1. Checking something (bencio-specific)
+        2. is_top_domain(): input - string url; output - int
+        3. feature_generator(): input - string list feature_list, string url; output - pd.df url_features
+        4. predict_maliciousness(): input - DMatrix url_features, boolean is_secure; output - int 
+        5. database_insert(): input - tuple (string url, string date, int prediction, int actual); output - NA
+        6. return
     """
+
     inp_url = "(example url)"
-    is_secure = False
+    is_secure = False 
+    temp_list_lexical = ['url_length',
+                        'url_domain_entropy',
+                        'url_is_digits_in_domain',
+                        'url_number_of_parameters',
+                        'url_number_of_digits',
+                        'url_string_entropy',
+                        'url_path_length',
+                        'url_host_length',
+                        'get_tld',
+                        'url_domain_len',
+                        'url_num_subdomain',
+                        'url_number_of_fragments',
+                        'url_is_encoded',
+                        'url_number_of_letters',
+                        'url_num_periods',
+                        'url_num_of_hyphens',
+                        'url_num_underscore',
+                        'url_num_forward_slash',
+                        'url_num_semicolon',
+                        'url_num_mod_sign',
+                        'has_login_in_string',
+                        'has_signin_in_string',
+                        'has_logon_in_string',
+                        'has_loginasp_in_string',
+                        'has_exe_in_string',
+                        'has_viewerphp_in_string',
+                        'has_getImageasp_in_string',
+                        'has_paypal_in_string',
+                        'has_dbsysphp_in_string',
+                        'has_shopping_in_string',
+                        'has_php_in_string',
+                        'has_bin_in_string',
+                        'has_personal_in_string',
+                        'url_scheme'
+                        ]
     
+    temp_list_content = ['blank_lines_count', 
+                        'word_count', 
+                        'js_count', 
+                        'js_find_count', 
+                        'js_link_count', 
+                        'js_winopen_count', 
+                        'title_tag_presence', 
+                        'meta_tag_count', 
+                        'anchor_tag_count', 
+                        'applet_tag_count', 
+                        'input_tag_count', 
+                        'has_free_in_html', 
+                        'has_access_in_html', 
+                        'url_length', 
+                        'url_ip_in_domain', 
+                        'url_domain_entropy', 
+                        'url_is_digits_in_domain', 
+                        'url_number_of_digits', 
+                        'url_string_entropy', 
+                        'url_path_length', 
+                        'url_host_length', 
+                        'url_number_of_subdirectories', 
+                        'url_num_subdomain', 
+                        'url_has_port', 
+                        'url_number_of_fragments', 
+                        'url_num_periods', 
+                        'url_num_equal', 
+                        'url_num_open_parenthesis', 
+                        'url_num_close_parenthesis', 
+                        'url_num_ampersand', 
+                        'url_num_at', 
+                        'has_account_in_string', 
+                        'has_webscr_in_string', 
+                        'has_ebayisapi_in_string', 
+                        'has_signin_in_string', 
+                        'has_banking_in_string', 
+                        'has_confirm_in_string', 
+                        'has_logon_in_string', 
+                        'has_signon_in_string', 
+                        'has_loginasp_in_string', 
+                        'has_loginphp_in_string', 
+                        'has_exe_in_string', 
+                        'has_zip_in_string', 
+                        'has_rar_in_string', 
+                        'has_jpg_in_string', 
+                        'has_gif_in_string', 
+                        'has_viewerphp_in_string', 
+                        'has_getImageasp_in_string', 
+                        'has_plugins_in_string', 
+                        'has_paypal_in_string', 
+                        'has_dbsysphp_in_string', 
+                        'has_configbin_in_string', 
+                        'has_downloadphp_in_string', 
+                        'has_payment_in_string', 
+                        'has_files_in_string', 
+                        'has_shopping_in_string', 
+                        'has_mailphp_in_string', 
+                        'has_jar_in_string', 
+                        'has_swf_in_string', 
+                        'has_cgi_in_string', 
+                        'has_php_in_string', 
+                        'has_abuse_in_string', 
+                        'has_bin_in_string', 
+                        'has_update_in_string', 
+                        'has_verification_in_string']
+    
+    # Input validation: checks if URL is in request
     if 'inp_url' in request.args:
         inp_url = request.args['inp_url']
     
+    # Input validation: checks if is_secure is in request
     if 'is_secure' in request.args:
         is_secure = (request.args['is_secure']=='enabled')
 
@@ -103,13 +153,28 @@ def check_url():
     if in_td==1:
         prediction = "Benign"
     else:
-        # prediction = rf_predict_maliciousness(inp_url,2) if is_secure else predict_maliciousness(inp_url)
-        prediction = predict_maliciousness(inp_url,is_secure)
+        # Generate URL Features
+        if (is_secure == 0):
+            url_features_pandas = feature_generator.lexical_generator(temp_list_lexical, inp_url)
 
-    
-    # prediction = rf_predict_maliciousness(inp_url,2)
+            # Convert pd.df to Dmatrix
+            url_features = Dmatrix(url_features_pandas)
+
+            # Generate prediction
+            prediction = predict_maliciousness_lexical(url_features)
+
+        else:
+            url_features_pandas = feature_generator.content_generator(temp_list_content, inp_url)
+
+            # Convert pd.df to Dmatrix
+            url_features = Dmatrix(url_features_pandas)
+
+            # Generate prediction
+            prediction = predict_maliciousness_content(url_features)
+
     time_end = time()
     random_score = randint(0,100)
+
     return dict(
         status=200,
         score=random_score,
