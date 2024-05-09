@@ -246,7 +246,7 @@ def content_generation(dataset):
 
     for i in range(len(dataset.index)):
         url = dataset.iloc[i]['url']
-        html = fgc.get_html(url)
+        html = fgc.get_batch_html(url)
 
         dataset['blank_lines_count'][i] = fgc.blank_lines_count(html)
 
@@ -334,14 +334,15 @@ def content_generation(dataset):
 
     return dataset
 
-def xgb_ffs(dataset_with_feature_csv):
+def xgb_ffs(dataset_with_feature_csv, feature_count):
+    # feature_count = 113 if lexical + content; feature_count = 76 if lexical
     dataset = pd.read_csv(dataset_with_feature_csv)
     # make sure 'url' and 'type' columns have been dropped
     features = dataset.iloc[:, 1:]
     url_type = dataset.iloc[:, 0]
 
-    forward_feature_selection = SequentialFeatureSelector(XGBClassifier(), k_features = 113, forward = True,
-                                                      floating = False, verbose = 10, scoring = 'accuracy', n_jobs = 1).fit(features, url_type)
+    forward_feature_selection = SequentialFeatureSelector(XGBClassifier(), k_features = feature_count, forward = True,
+                                                      floating = False, verbose = 10, scoring = 'accuracy', n_jobs = -1).fit(features, url_type)
     
     all_iterations = pd.DataFrame.from_dict(forward_feature_selection.get_metric_dict()).T
     score_series = pd.Series(all_iterations['avg_score'])
