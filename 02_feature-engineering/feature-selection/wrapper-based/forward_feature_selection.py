@@ -246,7 +246,7 @@ def content_generation(dataset):
 
     for i in range(len(dataset.index)):
         url = dataset.iloc[i]['url']
-        html = fgc.get_html(url)
+        html = fgc.get_batch_html(url)
 
         dataset['blank_lines_count'][i] = fgc.blank_lines_count(html)
 

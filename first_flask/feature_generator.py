@@ -114,7 +114,7 @@ def lexical_generator(feature_list, url):
     return url_test
 
 def content_generator(feature_list, url):
-    html = feature_generation_content_function_htmlin.get_html(url)
+    html = feature_generation_content_function_htmlin.get_single_html(url)
     temp = [[url, html]]
     url_test = pd.DataFrame(temp, columns=['url', 'html'])
 
