@@ -5,10 +5,13 @@ from model import predict_maliciousness
 from time import time
 from lexical_generator import lexical_generator
 from rf_scoretime import rf_predict_maliciousness, xgb_predict_maliciousness
+import threading
+import time
 
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
+isTraining = False
 # Create some test data for our catalog in the form of a list of dictionaries.
 
 """books = [
@@ -127,10 +130,67 @@ def feedback_error():
     """
     
     # ensure that all necessary properties are already included in HTTP request
-    if not(all(a_prop in request.args for a_prop in ['res_orig','res_correct','url'])) in request.args:
+    if not(all(a_prop in request.args for a_prop in ['res_orig','res_correct','url'])):
         return
     
     # 
+
+@app.route('/securl/test', methods=['GET'])
+def test_thread():
+    """
+    Test the thread process only. See how API calls are returned
+    """
+    global isTraining
+    
+    print("test_thread first pass")
+    
+    # ensure that all necessary properties are already included in HTTP request
+    if not(all(a_prop in request.args for a_prop in ['message','status','happiness'])):
+        return dict(
+            status=400,
+            message="Not all properties present!"
+        )
+    
+    random_score = randint(0,100)
+    print("Receive an API for testing threading with random score" + str(random_score) + "!")
+    
+    if isTraining:
+        print("...but thread process is not finished yet!")
+        return dict(
+            status=400,
+            message="thread process not finished!"
+        )
+
+    # initiate training simulation
+    isTraining = True
+    print("We're starting the thread now!")
+    
+    retrain_thread = threading.Thread(target=test_thread_action, args=(random_score,))
+    # retrain_thread = threading.Thread(target=test_thread_action, args=(request.args.copy(),random_score))
+    retrain_thread.start()
+    
+    return dict(
+        status=200,
+        message="Finished the API first!"
+    )
+
+    
+# def test_thread_action(msgDict,random_score):
+def test_thread_action(random_score):
+    global isTraining
+    
+    print("I'm starting the threading process...")
+    time.sleep(10)
+    print("I'm done with the thread!")
+    print("Score: " + str(random_score))
+    # print(request.args)
+    isTraining = False
+    
+    return dict(
+        status=200,
+        message="Finished the threading!"
+    )
+    
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
