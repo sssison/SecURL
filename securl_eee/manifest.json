@@ -8,6 +8,9 @@
       "matches": [
         "<all_urls>"
       ],
+      "css": [
+        "styles/content.css"
+      ],
       "js": [
         "scripts/content.js"
       ]

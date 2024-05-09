@@ -1,0 +1,40 @@
+/* copied from warning_page starting point */
+@import url('https://fonts.googleapis.com/css2?family=Kulim+Park:ital,wght@0,200;0,300;0,400;0,600;0,700;1,200;1,300;1,400;1,600;1,700&display=swap');
+
+div.notif-box{
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 15px;
+    visibility: visible;
+    z-index: 99999;
+    max-width: 350px;
+    font-family: Arial,"Kulim Park", "Inter", "Segoe UI", sans-serif;
+    box-sizing: border-box;
+    
+    h2{
+        font-family: "Kulim Park", "Inter", "Segoe UI", sans-serif;
+        font-size: 22px;
+        font-weight: bold;
+        margin: 0 0 5px 0;
+        color: black;
+    }
+    p{
+        font-family: "Kulim Park", "Inter", "Segoe UI", sans-serif;
+        font-size: 14px;
+        margin: 0;
+        color: black;
+        line-height: 16px;
+    }
+}
+
+/* for resetting animations / transitions */
+.notransition {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+}
