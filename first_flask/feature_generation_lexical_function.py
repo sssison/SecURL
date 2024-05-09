@@ -24,9 +24,7 @@ def get_ip(url):
 
 def url_scheme(url):   # Requires label encoding
     parsed_url = urllib.parse.urlparse(url)
-    print(url)
-    print(parsed_url)
-    return parsed_url.scheme()
+    return parsed_url.scheme
 
 def url_length(url):
     return len(url)
@@ -490,6 +488,6 @@ def has_verification_in_string(url):
         return 0
 
 if __name__ == "__main__":
-    url = "qux.bar.foo.example.com"
+    url = "www.reddit.com"
 
-    print(url_number_of_subdirectories(url))
+    print(type(url_scheme(url)))

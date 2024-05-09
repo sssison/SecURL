@@ -497,4 +497,7 @@ if __name__ == '__main__':
     print(blank_lines_count(html))
 
     url = 'ziply.vin/VerifyOnline'
-    get_single_html(url)
+    try:
+        get_single_html(url)
+    except:
+        print('HTML source code cannot be retrieved.')
