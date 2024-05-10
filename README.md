@@ -35,6 +35,8 @@ By installing this extension, you understand and agree to the following [data po
 4. Click the “Load unpacked” option.
 5. Select the folder that has been extracted from the ZIP file.
 
+And that's it! Enjoy using our extension!
+
 #### Video Tutorial
 
 https://github.com/SupernovaExe/SecURL/assets/63900699/c2ea4703-d5ec-4895-b3a3-4ef3afd6126b
