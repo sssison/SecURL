@@ -81,16 +81,18 @@ async function initializeContentScript() {
             console.log(sender.tab ?
                 "from a content script:" + sender.tab.url :
                 "from the extension");
-                if (request.hasOwnProperty("action") && request.action === "open_notif"){
-                    // sendResponse({farewell: "goodbye"});
-                    console.log("Received a signal to trigger the notification. Go!");
-                    createNotif();
-                } else {
-                    console.log("Received no greeting but Hi.");
-                    
-                }
+            
+            console.log(request);
+            
+            if (request.hasOwnProperty("action") && request.action === "open_notif"){
+                // sendResponse({farewell: "goodbye"});
+                console.log("Received a signal to trigger the notification. Go!");
+                createNotif();
+            } else {
+                console.log("Received no greeting but Hi.");       
             }
-        );
+        }
+    );
         
     // ! send the message to the background script stating that we're ready to trigger the notification
     const response = await chrome.runtime.sendMessage({message: "tab_ready"});

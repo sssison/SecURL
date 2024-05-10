@@ -74,7 +74,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 redirectUrlUpdated["skipped"] = false;
             } else if (!isMaliciousUrl) { // TODO: <efficiency> only check with the model if NOT skipped and NOT in blacklist so far
                 response_json = await checkIfMaliciousUrl(details.url,false);
-                isMaliciousUrl = (response_json["message"]!=="Benign");
+                isMaliciousUrl = (response_json["message"]!=="Benign" && !(response_json["message"].includes("Benign")));
                 redirectUrlUpdated["serverResult"] = response_json;     // store the entire JSON result in serverResult property
                 console.log("Checked the URL with the model to get ff. result...");
                 console.log(response_json);

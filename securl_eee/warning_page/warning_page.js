@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(url);
 
         var response_json = null;
-        // endTime = performance.now();
         fetch(url, {
             method: 'GET',
         })

@@ -1,6 +1,41 @@
-console.log('This is a popup!');
+var redirectUrl;
 
+console.log('This is a popup!');
 document.getElementById("test-req").addEventListener("click", sendTestRequest); //or add method for testing only!
+
+// ? onload, fetch the results of the model
+window.onload = async function(e){
+    let currTab = await getCurrentTab();
+    let tabId = currTab.id;
+    console.log('I got tabID: ' + tabId.toString());
+
+    // ! caution: chrome.storage.local.get still runs async even with await keyword
+    chrome.storage.local.get("redirectUrls", function(data) {
+        const redirectUrls = data.redirectUrls || {};
+        console.log('I got redirectUrls');
+        console.log(redirectUrls);
+        // if (redirectUrls[tabId]!=null && currTab.url.includes(redirectUrls[tabId]["url"])){
+        // above condition will fail for REDIRECT LINKS.
+        // TODO: if link is different, UPDATE the storage? 
+        redirectUrl = redirectUrls[tabId]["url"];
+        if (redirectUrls[tabId]!=null && currTab.url.includes(redirectUrls[tabId]["url"])){
+            console.log('I also got URL: ' + redirectUrl);
+        } else {
+            console.log('Error with the redirectUrl');
+            console.log(redirectUrls[tabId]);
+            console.log("Compare href <" + currTab.url + "> and redirect <" + redirectUrls[tabId]["url"] + ">");
+        }
+        
+        // ? populate the fields
+        console.log("populating the fields now...");
+        document.getElementById("test-url-span").innerText = redirectUrl;
+        console.log(redirectUrls[tabId]);
+        document.getElementById("test-response-span").innerText = redirectUrls[tabId]["serverResult"]["message"];
+    });
+
+    // onclick of report text, show the modal
+    document.querySelector(".report-error-text").addEventListener("click", sendReportPopup);
+}
 
 async function sendTestRequest() {
     var startTime, endTime, endTime2;
@@ -69,27 +104,27 @@ async function sendTestRequest() {
     );
     // document.getElementById("test-response-span").innerText = (response_json["safety"] ? `Safe (${response_json["score"]}%)` : `Malicious (${response_json["score"]}%)`);
     // document.getElementById("test-url-span").innerText = response_json["url"];
-
+    
     // if(response_json!==null){
-    //     console.log("Succeeded response body: ");
-    //     console.log(response_json["body"]);
-    // }
-
-    /*
+        //     console.log("Succeeded response body: ");
+        //     console.log(response_json["body"]);
+        // }
+        
+        /*
         NOTES:
         ? the returned value of fetch after running response.json() is still a Promise, not JSON
         ? read: https://stackoverflow.com/questions/37555031/why-does-json-return-a-promise-but-not-when-it-passes-through-then
         ? try using async methods instead
-    */
-    /*
-    if trying fetch with URL params... (https://stackoverflow.com/questions/35038857/setting-query-string-using-fetch-get-request)
-    fetch('https://example.com?' + new URLSearchParams({
-        foo: 'value',
-        bar: 2,
-    }))
-    */
+        */
+       /*
+       if trying fetch with URL params... (https://stackoverflow.com/questions/35038857/setting-query-string-using-fetch-get-request)
+       fetch('https://example.com?' + new URLSearchParams({
+           foo: 'value',
+           bar: 2,
+        }))
+        */
 }
-
+    
 // copied from Chrome docs: https://developer.chrome.com/docs/extensions/reference/tabs/
 async function getCurrentTab() {
     let queryOptions = { active: true, currentWindow: true };
@@ -103,4 +138,45 @@ async function getIsEnhancedSec() {
     let fetchEnhancedFromLocal = await chrome.storage.local.get({ enhanced_sec: false });
     // returns an object: {enhanced_sec: <true/false>}
     return fetchEnhancedFromLocal["enhanced_sec"];
+}
+
+async function sendReportPopup(){
+    let currTab = await getCurrentTab();
+    let tabId = currTab.id;
+    console.log("sendReportPopup triggered with tabId: " + tabId.toString());
+
+    // for now, immediately trigger the feedback report
+    // TODO: insert modal or confirmation div to ensure that user clicked correctly
+    document.querySelector(".report-error-text").removeEventListener("click",sendReportPopup);
+
+    // TODO: send the request (copied from warning_page.js)
+    // TODO sub 1: adjust predicted/correct to benign/malicious depending on the result!
+    var serverUrl = "http://10.158.66.12:5000/securl/feedback?"
+    var url = serverUrl + new URLSearchParams({
+        url: redirectUrl,
+        predicted: "Benign",
+        correct: "Malicious"
+    });
+    console.log(url);
+
+    var response_json = null;
+    fetch(url, {
+        method: 'GET',
+    })
+        .then(function (data) {
+            console.log('Report succeeded with JSON response');
+            return data.json(); //call only ONCE (affects data variable)
+            // shortcut: // .then(response => response.json())
+        })
+        .then(function(data_json){
+            response_json = data_json;
+            console.log(response_json);
+        })
+        .catch(function (error) {
+            console.log('Request failed', error);
+        });
+
+    // TODO: trigger notification stating success (send a message)
+    const response = chrome.tabs.sendMessage(tabId,{action: "open_notif",source: "popup"});
+    // const response = chrome.runtime.sendMessage({action: "open_notif",source: "popup"});
 }
