@@ -37,6 +37,7 @@ By installing this extension, you understand and agree to the following [data po
 
 #### Video Tutorial
 
+https://github.com/SupernovaExe/SecURL/assets/63900699/c2ea4703-d5ec-4895-b3a3-4ef3afd6126b
 
 ## Sample Usage
 
