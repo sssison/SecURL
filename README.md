@@ -1,4 +1,4 @@
-<center> <h1> SeCURL: A Machine Learning Based Web Extension for Malicious URL Detection </h1> </center>
+<center> <h1> SecURL: A Machine Learning Based Web Extension for Malicious URL Detection </h1> </center>
 
 ## About the App
 
