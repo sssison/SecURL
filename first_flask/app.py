@@ -164,13 +164,17 @@ def check_url():
             prediction = predict_maliciousness_lexical(url_features)
 
         else:
-            url_features_pandas = feature_generator.content_generator(temp_list_content, inp_url)
+            try:
+                url_features_pandas = feature_generator.content_generator(temp_list_content, inp_url)
 
-            # Convert pd.df to Dmatrix
-            url_features = Dmatrix(url_features_pandas)
+                # Convert pd.df to Dmatrix
+                url_features = Dmatrix(url_features_pandas)
 
-            # Generate prediction
-            prediction = predict_maliciousness_content(url_features)
+                # Generate prediction
+                prediction = predict_maliciousness_content(url_features)
+                isFetchable = 1
+            except:
+                isFetchable = 0
 
     time_end = time()
     random_score = randint(0,100)
