@@ -6,31 +6,27 @@ from time import time
 import feature_generator
 from whitelist_checker import is_dom_top
 from xgboost import Dmatrix
+import threading
 
-app = flask.Flask(__name__)
-app.config["DEBUG"] = True
+import pandas as pd                     # For data transformation
+import numpy as numpy                   # For scientific calculations
+from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
+from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score, classification_report
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, ConfusionMatrixDisplay
+from xgboost import XGBClassifier, DMatrix, train
+from sklearn.pipeline import Pipeline
+import time
+from datetime import datetime
+import joblib
+import os
+import optuna
+from sklearn.metrics import mean_squared_error # or any other metric
+from sklearn.model_selection import train_test_split
+import machine_learning
+import database_operations
+import feature_engineering
 
-@app.route('/', methods=['GET'])
-def home():
-    return '''<h1>SecURL API Framework</h1>
-                <p>A flask api implementation for SecURL.   </p>'''
-
-@app.route('/securl', methods=['GET'])
-def check_url():
-    """
-    Analyzes the URL and checks whether it is malicious or not, based on the result of the trained classifiers
-    Steps:
-        1. Checking something (bencio-specific)
-        2. is_top_domain(): input - string url; output - int
-        3. feature_generator(): input - string list feature_list, string url; output - pd.df url_features
-        4. predict_maliciousness(): input - DMatrix url_features, boolean is_secure; output - int 
-        5. database_insert(): input - tuple (string url, string date, int prediction, int actual); output - NA
-        6. return
-    """
-
-    inp_url = "(example url)"
-    is_secure = False 
-    temp_list_lexical = ['url_length',
+temp_list_lexical = ['url_length',
                         'url_domain_entropy',
                         'url_is_digits_in_domain',
                         'url_number_of_parameters',
@@ -66,7 +62,7 @@ def check_url():
                         'url_scheme'
                         ]
     
-    temp_list_content = ['blank_lines_count', 
+temp_list_content = ['blank_lines_count', 
                         'word_count', 
                         'js_count', 
                         'js_find_count', 
@@ -131,6 +127,31 @@ def check_url():
                         'has_bin_in_string', 
                         'has_update_in_string', 
                         'has_verification_in_string']
+
+app = flask.Flask(__name__)
+app.config["DEBUG"] = True
+
+@app.route('/', methods=['GET'])
+def home():
+    return '''<h1>SecURL API Framework</h1>
+                <p>A flask api implementation for SecURL.   </p>'''
+
+@app.route('/securl', methods=['GET'])
+def check_url():
+    """
+    Analyzes the URL and checks whether it is malicious or not, based on the result of the trained classifiers
+    Steps:
+        1. Checking something (bencio-specific)
+        2. is_top_domain(): input - string url; output - int
+        3. feature_generator(): input - string list feature_list, string url; output - pd.df url_features
+        4. predict_maliciousness(): input - DMatrix url_features, boolean is_secure; output - int 
+        5. database_insert(): input - tuple (string url, string date, int prediction, int actual); output - NA
+        6. return
+    """
+
+    inp_url = "(example url)"
+    is_secure = False 
+    
     
     # Input validation: checks if URL is in request
     if 'inp_url' in request.args:
@@ -206,10 +227,101 @@ def report_url():
         print("Report received!\n")
         print(f"URL {inp_url} should have been {request.args['correct']} instead of {request.args['predicted']} ")
 
-    return dict(
-        status=200
-    )
+    # TODO: Update the database
 
+    global isCheckingDrift
+
+    if isCheckingDrift:
+        print("Model retraining already ongoing. Please wait!")
+        return dict(
+            status=400,
+            message="thread process not finished!"
+        )
+    
+    isCheckingDrift = True
+    print("We're starting the thread now!")
+    
+    retrain_thread = threading.Thread(target=test_thread_action, args=())
+    # retrain_thread = threading.Thread(target=test_thread_action, args=(request.args.copy(),random_score))
+    retrain_thread.start()
+
+    return dict(
+        status=200,
+        message="Finished the API first!"
+    )
+    
+# def test_thread_action(msgDict,random_score):
+def test_thread_action(random_score):
+    global isCheckingDrift
+
+    # Reads training csv
+    warm_up_actual = pd.read_csv("databases/warm-up-actual.csv")
+    warm_up_predicted = pd.read_csv("databases/warm-up-predicted.csv")
+
+    # Reads from current database
+    test_actual = database_operations.column_to_pd("databases/securl_transactions.db", "actual")
+    test_predicted = database_operations.column_to_pd("databases/securl_transactions.db", "prediction")
+
+    is_conceptDrift = machine_learning.concept_drift_detector(warm_up_predicted, warm_up_actual, test_predicted, test_actual)
+
+    if (is_conceptDrift):
+        
+        print("I'm Retraining!")
+
+        legacy_data_lexical = pd.read_csv("databases/legacy_dataset_lexical.csv")
+        legacy_data_lexical_content = pd.read_csv("databases/legacy_dataset_lexical-content.csv")
+
+        new_data_lexical = database_operations.column_to_pd("databases/securl_transactions.db", "url, actual")
+        new_data_lexical['url_type'] = new_data_lexical['actual']
+        new_data_lexical = new_data_lexical.drop(columns = ['actual'])
+        new_data_lexical = feature_engineering.lexical_generation(new_data_lexical)
+
+        new_data_lexical_content = feature_engineering.content_generation(new_data_lexical)
+
+        new_data_lexical = new_data_lexical.drop(columns=['url'])
+        new_data_lexical_content = new_data_lexical_content.drop(columns=['url'])
+
+        retrain_dataset_lexical = pd.concat([legacy_data_lexical, new_data_lexical])
+        retrain_dataset_lexical_content = pd.concat([legacy_data_lexical_content, new_data_lexical_content])
+
+        print(retrain_dataset_lexical.head())
+        print(retrain_dataset_lexical_content.head())
+
+        X_train_lexical, X_test_lexical, y_train_lexical, y_test_lexical = train_test_split(retrain_dataset_lexical.drop(columns=['url_type']), retrain_dataset_lexical['url_type'], test_size = 0.2, random_state=42)
+        X_train_lexical_content, X_test_lexical_content, y_train_lexical_content, y_test_lexical_content = train_test_split(retrain_dataset_lexical_content.drop(columns=['url_type']), retrain_dataset_lexical_content['url_type'], test_size = 0.2, random_state=42)
+
+        X_train_lexical = X_train_lexical[temp_list_lexical]
+        X_test_lexical = X_test_lexical[temp_list_lexical]
+
+        X_train_lexical_content = X_train_lexical_content[temp_list_content]
+        X_test_lexical_content = X_test_lexical_content[temp_list_content]
+
+        parameters_lexical = machine_learning.hyperparameter_tuning(X_train_lexical, y_train_lexical)
+        parameters_lexical_content = machine_learning.hyperparameter_tuning(X_train_lexical_content, y_train_lexical_content)
+
+        print("Starting re-training...")
+
+        machine_learning.model_training(X_train_lexical, y_train_lexical, X_test_lexical, y_test_lexical, parameters_lexical, "model/xgb-lexical-test.sav")
+        machine_learning.model_training(X_train_lexical_content, y_train_lexical_content, X_test_lexical_content, y_test_lexical_content, parameters_lexical_content, "model/xgb-lexical-content-test.sav")
+
+        print("Retraining finished!")
+
+        isCheckingDrift = False
+        
+        return dict(
+            status=200,
+            message="Finished the threading!"
+        )
+
+    else:
+        print("No drift detected!")
+        
+        isCheckingDrift = False
+        
+        return dict(
+            status=200,
+            message="Finished the threading!"
+        )
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
