@@ -275,53 +275,56 @@ def test_thread_action():
     # is_conceptDrift = True
 
     if (is_conceptDrift):
+        try:
         
-        print("I'm Retraining!")
+            print("I'm Retraining!")
 
-        legacy_data_lexical = pd.read_csv("databases/legacy_dataset_lexical.csv")
-        legacy_data_lexical_content = pd.read_csv("databases/legacy_dataset_lexical-content.csv")
+            legacy_data_lexical = pd.read_csv("databases/legacy_dataset_lexical.csv")
+            legacy_data_lexical_content = pd.read_csv("databases/legacy_dataset_lexical-content.csv")
 
-        new_data_lexical = database_operations.column_to_pd("databases/securl_transactions.db", "url, actual")
-        new_data_lexical['url_type'] = new_data_lexical['actual']
-        new_data_lexical = new_data_lexical.drop(columns = ['actual'])
-        new_data_lexical = feature_engineering.lexical_generation(new_data_lexical)
+            new_data_lexical = database_operations.column_to_pd("databases/securl_transactions.db", "url, actual")
+            new_data_lexical['url_type'] = new_data_lexical['actual']
+            new_data_lexical = new_data_lexical.drop(columns = ['actual'])
+            new_data_lexical = feature_engineering.lexical_generation(new_data_lexical)
 
-        new_data_lexical_content = feature_engineering.content_generation(new_data_lexical)
+            new_data_lexical_content = feature_engineering.content_generation(new_data_lexical)
 
-        new_data_lexical = new_data_lexical.drop(columns=['url'])
-        new_data_lexical_content = new_data_lexical_content.drop(columns=['url'])
+            new_data_lexical = new_data_lexical.drop(columns=['url'])
+            new_data_lexical_content = new_data_lexical_content.drop(columns=['url'])
 
-        retrain_dataset_lexical = pd.concat([legacy_data_lexical, new_data_lexical])
-        retrain_dataset_lexical_content = pd.concat([legacy_data_lexical_content, new_data_lexical_content])
+            retrain_dataset_lexical = pd.concat([legacy_data_lexical, new_data_lexical])
+            retrain_dataset_lexical_content = pd.concat([legacy_data_lexical_content, new_data_lexical_content])
 
-        print(retrain_dataset_lexical.head())
-        print(retrain_dataset_lexical_content.head())
+            print(retrain_dataset_lexical.head())
+            print(retrain_dataset_lexical_content.head())
 
-        X_train_lexical, X_test_lexical, y_train_lexical, y_test_lexical = train_test_split(retrain_dataset_lexical.drop(columns=['url_type']), retrain_dataset_lexical['url_type'], test_size = 0.2, random_state=42)
-        X_train_lexical_content, X_test_lexical_content, y_train_lexical_content, y_test_lexical_content = train_test_split(retrain_dataset_lexical_content.drop(columns=['url_type']), retrain_dataset_lexical_content['url_type'], test_size = 0.2, random_state=42)
+            X_train_lexical, X_test_lexical, y_train_lexical, y_test_lexical = train_test_split(retrain_dataset_lexical.drop(columns=['url_type']), retrain_dataset_lexical['url_type'], test_size = 0.2, random_state=42)
+            X_train_lexical_content, X_test_lexical_content, y_train_lexical_content, y_test_lexical_content = train_test_split(retrain_dataset_lexical_content.drop(columns=['url_type']), retrain_dataset_lexical_content['url_type'], test_size = 0.2, random_state=42)
 
-        X_train_lexical = X_train_lexical[temp_list_lexical]
-        X_test_lexical = X_test_lexical[temp_list_lexical]
+            X_train_lexical = X_train_lexical[temp_list_lexical]
+            X_test_lexical = X_test_lexical[temp_list_lexical]
 
-        X_train_lexical_content = X_train_lexical_content[temp_list_content]
-        X_test_lexical_content = X_test_lexical_content[temp_list_content]
+            X_train_lexical_content = X_train_lexical_content[temp_list_content]
+            X_test_lexical_content = X_test_lexical_content[temp_list_content]
 
-        parameters_lexical = machine_learning.hyperparameter_tuning(X_train_lexical, y_train_lexical)
-        parameters_lexical_content = machine_learning.hyperparameter_tuning(X_train_lexical_content, y_train_lexical_content)
+            parameters_lexical = machine_learning.hyperparameter_tuning(X_train_lexical, y_train_lexical)
+            parameters_lexical_content = machine_learning.hyperparameter_tuning(X_train_lexical_content, y_train_lexical_content)
 
-        print("Starting re-training...")
+            print("Starting re-training...")
 
-        machine_learning.model_training(X_train_lexical, y_train_lexical, X_test_lexical, y_test_lexical, parameters_lexical, "model/xgb-lexical-test.sav")
-        machine_learning.model_training(X_train_lexical_content, y_train_lexical_content, X_test_lexical_content, y_test_lexical_content, parameters_lexical_content, "model/xgb-lexical-content-test.sav")
+            machine_learning.model_training(X_train_lexical, y_train_lexical, X_test_lexical, y_test_lexical, parameters_lexical, "model/xgb-lexical-test.sav")
+            machine_learning.model_training(X_train_lexical_content, y_train_lexical_content, X_test_lexical_content, y_test_lexical_content, parameters_lexical_content, "model/xgb-lexical-content-test.sav")
 
-        print("Retraining finished!")
+            print("Retraining finished!")
 
-        isCheckingDrift = False
-        
-        return dict(
-            status=200,
-            message="Finished the threading!"
-        )
+            isCheckingDrift = False
+            
+            return dict(
+                status=200,
+                message="Finished the threading!"
+            )
+        except:
+            isCheckingDrift = False
 
     else:
         print("No drift detected!")
