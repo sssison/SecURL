@@ -266,7 +266,13 @@ def test_thread_action(random_score):
     test_actual = database_operations.column_to_pd("databases/securl_transactions.db", "actual")
     test_predicted = database_operations.column_to_pd("databases/securl_transactions.db", "prediction")
 
+    # For Testing purposes
+    # test_actual = pd.read_csv("databases/testing-actual.csv")
+    # test_predicted = pd.read_csv("databases/testing-predicted.csv")
+
     is_conceptDrift = machine_learning.concept_drift_detector(warm_up_predicted, warm_up_actual, test_predicted, test_actual)
+
+    is_conceptDrift = True
 
     if (is_conceptDrift):
         
