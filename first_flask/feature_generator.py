@@ -4,7 +4,7 @@ import feature_generation_content_function_htmlin
 import urllib
 
 def url_scheme(url):
-    scheme_lookup = pd.read_csv('scheme_lookup.csv')
+    scheme_lookup = pd.read_csv('lookups/scheme_lookup.csv')
     parsed_url = urllib.parse.urlparse(url)
     parsed_url_scheme = parsed_url.scheme
     try:
@@ -14,7 +14,7 @@ def url_scheme(url):
 
 
 def get_tld(url):
-    tld_lookup = pd.read_csv('tld_lookup.csv')
+    tld_lookup = pd.read_csv('lookups/tld_lookup.csv')
     parsed_url = urllib.parse.urlparse(url)
     tld = parsed_url.netloc.split('.')[-1].split(':')[0]
     try:
@@ -247,7 +247,7 @@ def content_generator(feature_list, url):
     return url_test
 
 if __name__ == '__main__':
-    url = 'https://www.facebook.com'
-    feature_list = ['url_length', 'url_domain_entropy', 'blank_spaces_count', 'iframe_count', 'webpage_entropy']
+    url = 'https://www.lazada.com.ph/products/google-chromecast-4th-gen-with-google-tv-2020-4k-streaming-media-player-i1540382703-s6527060548.html?c=&channelLpJumpArgs=&clickTrackInfo=query%253Achromecast%252Bfor%252Bnot%252Bsmart%252Btv%252Bhdmi%253Bnid%253A1540382703%253Bsrc%253ALazadaMainSrp%253Brn%253A1f1f5c5c558cc8b5243b0051dd57277b%253Bregion%253Aph%253Bsku%253A1540382703_PH%253Bprice%253A2840%253Bclient%253Adesktop%253Bsupplier_id%253A100159544%253Bbiz_source%253Ah5_internal%253Bslot%253A2%253Butlog_bucket_id%253A470687%253Basc_category_id%253A10100889%253Bitem_id%253A1540382703%253Bsku_id%253A6527060548%253Bshop_id%253A180001&fastshipping=0&freeshipping=1&fs_ab=2&fuse_fs=&lang=en&location=Metro%20Manila&price=2.84E%203&priceCompare=skuId%3A6527060548%3Bsource%3Alazada-search-voucher%3Bsn%3A1f1f5c5c558cc8b5243b0051dd57277b%3BunionTrace%3Aa3b54e9a17144453281738102e%3BoriginPrice%3A284000%3BvoucherPrice%3A284000%3BdisplayPrice%3A284000%3BsinglePromotionId%3A900000025088577%3BsingleToolCode%3ApromPrice%3BvoucherPricePlugin%3A1%3BbuyerId%3A13337265%3Btimestamp%3A1714445328725&ratingscore=4.977462028417443&request_id=1f1f5c5c558cc8b5243b0051dd57277b&review=2041&sale=6395&search=1&source=search&spm=a2o4l.searchlist.list.2&stock=1'
+    feature_list = ['url_scheme', 'get_tld']
 
-    print(content_generator(feature_list, url))
+    print(lexical_generator(feature_list, url))
