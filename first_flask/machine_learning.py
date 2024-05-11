@@ -118,7 +118,7 @@ def model_training(X_train, y_train, X_test, y_test, best_params):
 
     return
 
-def concept_drift_detector(warm_up, testing):
+def concept_drift_detector(warm_up_pred, warm_up_act, test_pred, test_act):
     """
     The function `concept_drift_detector` implements a drift detection algorithm using the DDM method
     with error metrics and a warm-up phase followed by a detection phase.
@@ -164,8 +164,8 @@ def concept_drift_detector(warm_up, testing):
         return 1 - (y_true == y_pred)
 
     # Warm-Up Phase
-    warm_up_predicted = warm_up.iloc[:, 0].tolist()
-    warm_up_actual = warm_up.iloc[:, 0].tolist()
+    warm_up_predicted = warm_up_pred.iloc[:, 0].tolist()
+    warm_up_actual = warm_up_act.iloc[:, 0].tolist()
 
     for y_pred, y_actual in zip(warm_up_predicted, warm_up_actual):
         error = error_scorer(y_true=y_actual, y_pred=y_pred)
@@ -177,9 +177,9 @@ def concept_drift_detector(warm_up, testing):
     # Detection Phase
     idx_drift, idx_warning = [], []
 
-    i = len(warm_up.index)
-    test_predicted = testing.iloc[:, 0].tolist()
-    test_actual = testing.iloc[:, 0].tolist()
+    i = len(warm_up_pred.index)
+    test_predicted = test_pred.iloc[:, 0].tolist()
+    test_actual = test_act.iloc[:, 0].tolist()
 
 
     for y_pred, y_actual in zip(test_predicted, test_actual):
