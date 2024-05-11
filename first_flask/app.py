@@ -14,7 +14,6 @@ from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_sc
 from sklearn.metrics import confusion_matrix, classification_report, accuracy_score, ConfusionMatrixDisplay
 from xgboost import XGBClassifier, DMatrix, train
 from sklearn.pipeline import Pipeline
-import time
 from datetime import datetime
 import joblib
 import os
@@ -129,6 +128,8 @@ temp_list_content = ['blank_lines_count',
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
+
+isCheckingDrift = False
 
 @app.route('/', methods=['GET'])
 def home():
@@ -254,7 +255,7 @@ def report_url():
     )
     
 # def test_thread_action(msgDict,random_score):
-def test_thread_action(random_score):
+def test_thread_action():
     global isCheckingDrift
 
     # Reads training csv
@@ -271,7 +272,7 @@ def test_thread_action(random_score):
 
     is_conceptDrift = machine_learning.concept_drift_detector(warm_up_predicted, warm_up_actual, test_predicted, test_actual)
 
-    is_conceptDrift = True
+    # is_conceptDrift = True
 
     if (is_conceptDrift):
         

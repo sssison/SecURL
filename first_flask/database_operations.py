@@ -53,6 +53,4 @@ def column_to_pd(db, column):
     return df
 
 # Date should be YYYY-MM-DD HH:MM:SS.SSS
-date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-df = column_to_pd("databases/securl_transactions.db","actual")
-print(df)
+# date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
