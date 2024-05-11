@@ -1,6 +1,7 @@
 import sqlite3
 from sqlite3 import Error
 from datetime import datetime
+import pandas as pd
 
 '''
 To-Do:
@@ -41,6 +42,17 @@ def add_transaction(db, transaction_details):
 
     return 
 
+def column_to_pd(db, column):
+
+    query = "SELECT "+column+" FROM transactions"
+
+    database = creating_connection(db)
+
+    df = pd.read_sql(query, database)
+
+    return df
+
 # Date should be YYYY-MM-DD HH:MM:SS.SSS
 date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-add_transaction('securl_transactions.db', ('www.reddit.com',date, 0,0))
+df = column_to_pd("databases/securl_transactions.db","actual")
+print(df)

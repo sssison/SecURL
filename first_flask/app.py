@@ -1,11 +1,10 @@
 import flask
 from flask import request, jsonify
 from random import randint
-from first_flask.model_predictor import predict_maliciousness_lexical, predict_maliciousness_content
+from model_predictor import predict_maliciousness_lexical, predict_maliciousness_content
 from time import time
 import feature_generator
 from whitelist_checker import is_dom_top
-from xgboost import Dmatrix
 import threading
 
 import pandas as pd                     # For data transformation
@@ -178,8 +177,8 @@ def check_url():
         if (is_secure == 0):
             url_features_pandas = feature_generator.lexical_generator(temp_list_lexical, inp_url)
 
-            # Convert pd.df to Dmatrix
-            url_features = Dmatrix(url_features_pandas)
+            # Convert pd.df to DMatrix
+            url_features = DMatrix(url_features_pandas)
 
             # Generate prediction
             prediction = predict_maliciousness_lexical(url_features)
@@ -188,8 +187,8 @@ def check_url():
             try:
                 url_features_pandas = feature_generator.content_generator(temp_list_content, inp_url)
 
-                # Convert pd.df to Dmatrix
-                url_features = Dmatrix(url_features_pandas)
+                # Convert pd.df to DMatrix
+                url_features = DMatrix(url_features_pandas)
 
                 # Generate prediction
                 prediction = predict_maliciousness_content(url_features)
