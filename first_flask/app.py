@@ -152,7 +152,6 @@ def check_url():
     inp_url = "(example url)"
     is_secure = False 
     
-    
     # Input validation: checks if URL is in request
     if 'inp_url' in request.args:
         inp_url = request.args['inp_url']
@@ -200,6 +199,10 @@ def check_url():
     time_end = time()
     random_score = randint(0,100)
 
+    date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+
+    database_operations.add_transaction("databases/securl_transactions.db", (inp_url, date, prediction, prediction))
+
     return dict(
         status=200,
         score=random_score,
@@ -222,7 +225,6 @@ def report_url():
     Receives reports on incorrect detection and saves to SQLite database
     """
     inp_url = "(example url)"
-    is_secure = False
     
     if 'url' in request.args:
         inp_url = request.args['url']
@@ -232,6 +234,12 @@ def report_url():
         print(f"URL {inp_url} should have been {request.args['correct']} instead of {request.args['predicted']} ")
 
     # TODO: Update the database
+
+    # ! temporary: strip off prefixes
+    inp_url = inp_url.replace("https://","",1)
+    inp_url = inp_url.replace("http://","",1)
+
+    database_operations.update_database("databases/securl_transactions.db", inp_url)
 
     global isCheckingDrift
 
