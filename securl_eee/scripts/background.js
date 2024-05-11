@@ -26,10 +26,12 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
     var redirectUrls, blacklists;
     var isMaliciousUrl = false;
     var response_json;
+    var enhancedSec;
 
-    chrome.storage.local.get(["redirectUrls", "blacklist"], async function (data) {
+    chrome.storage.local.get(["redirectUrls", "blacklist", "enhanced_sec"], async function (data) {
         redirectUrls = data.redirectUrls || {};
         blacklists = data.blacklist || {};
+        enhancedSec = data.enhanced_sec
 
         // ? access the URL or tab: details.url or  details.tabId
 
@@ -53,6 +55,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             //// redirectUrls[details.tabId] = details.url;
 
             var redirectUrlUpdated;
+            // var isFetchable = true;        // check whether URL's HTML is fetchable or not. Not fetchable --> malicious
+            var isSkipped = false;          // confirm that the current site WAS skipped by the user. default: FALSE
 
             if (redirectUrls.hasOwnProperty(details.tabId)) {
                 redirectUrlUpdated = JSON.parse(JSON.stringify(redirectUrls[details.tabId]));
@@ -60,7 +64,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             } else {
                 redirectUrlUpdated = {
                     "url": details.url,
-                    "skipped": false
+                    "skipped": false,
+                    "fetched": true
                 };
             }
 
@@ -68,18 +73,64 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             // ? this is checked by skipped: true
             // already working!
 
-            console.log(`For URL <${details.url}>, skipped=${redirectUrlUpdated["skipped"]} `)
-            if (redirectUrlUpdated["skipped"]) {
+            console.log(`For URL <${details.url}>, skipped=${redirectUrlUpdated["skipped"]} `);
+
+            // ? Cases for a skipped site: you skipped a malicious site ("fetched"==False), you skipped a BLANK site (["fetched"]==True), or you moved to a new site (malicious or benign)
+            if (redirectUrlUpdated["skipped"]) { // you only pressed the SKIP button. DO NOT REDIRECT URL!
                 isMaliciousUrl = false;
+                isSkipped = true;
                 redirectUrlUpdated["skipped"] = false;
-            } else if (!isMaliciousUrl) { // TODO: <efficiency> only check with the model if NOT skipped and NOT in blacklist so far
-                response_json = await checkIfMaliciousUrl(details.url, false);
-                console.log("called response_json result");
-                console.log(response_json);
-                isMaliciousUrl = (response_json["message"] !== "Benign" && !(response_json["message"].includes("Benign")));
-                redirectUrlUpdated["serverResult"] = response_json;     // store the entire JSON result in serverResult property
-                console.log("Checked the URL with the model to get ff. result...");
-                console.log(response_json);
+                
+                // // ! experimental: update skipped depending on fetchable quality. if NOT fetchable, keep the skip state
+
+                // TODO: previously UNFETCHABLE. you need to check current URL if fetchable!
+                response_json = await checkIfMaliciousUrl(details.url, enhancedSec);
+
+                if (response_json["fetched"]){
+                    isMaliciousUrl = (response_json["message"] !== "Benign" && !(response_json["message"].includes("Benign")));
+                    isFetchable = true;
+                    redirectUrlUpdated["serverResult"] = response_json;     // store the entire JSON result in serverResult property
+                    redirectUrlUpdated["fetched"] = true;
+                } else { // failed to fetch HTML; assume malicious
+                    isMaliciousUrl = true; 
+                    isFetchable = false;
+                    redirectUrlUpdated["fetched"] = false;
+                    // TODO: add another variable to track inability to fetch URL. This should be passed on as data to the warning page!
+                    if (!redirectUrlUpdated["fetched"]){
+                        redirectUrlUpdated["skipped"] = true;   // ? temporary? means continue to skip
+                    }
+                }
+
+
+                if (!redirectUrlUpdated["fetched"]) {
+                    
+                } else { // ? a fetchable URL. still store the results of the server! (analyze malicious URL)
+                    redirectUrlUpdated["skipped"] = false;
+                }
+            }
+
+            // ! converted else if (!isMaliciousUrl) to if (!isMaliciousURl):
+            else if (!isMaliciousUrl) { // -TODO: <efficiency> check with the model if NOT skipped and NOT in blacklist so far
+                // isMaliciousUrl MAY STILL BE UPDATED! We wait for the evaluation of the model first...                
+                console.log("running checkIfMaliciousUrl with parameters <" + details.url + "> and " + enhancedSec);
+                response_json = await checkIfMaliciousUrl(details.url, enhancedSec);
+                if (response_json["fetched"]){
+                    console.log("called response_json result");
+                    console.log(response_json);
+
+                    isMaliciousUrl = (response_json["message"] !== "Benign" && !(response_json["message"].includes("Benign")));
+                    redirectUrlUpdated["serverResult"] = response_json;     // store the entire JSON result in serverResult property
+                    redirectUrlUpdated["fetched"] = true;
+                    isFetchable = true;
+                    
+                    console.log("Checked the URL with the model to get ff. result...");
+                    console.log(response_json);
+                } else { // failed to fetch HTML; assume malicious
+                    isMaliciousUrl = true; 
+                    isFetchable = false;
+                    redirectUrlUpdated["fetched"] = false;
+                    // TODO: add another variable to track inability to fetch URL. This should be passed on as data to the warning page!
+                }
             }
 
             redirectUrls[details.tabId] = JSON.parse(JSON.stringify(redirectUrlUpdated));
@@ -88,11 +139,14 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             redirectUrls[details.tabId] = redirectUrlUpdated;
             chrome.storage.local.set({ "redirectUrls": redirectUrls }, function () {
                 // TODO: fix the scenario wherein user proceeds to malicious link. Right now, if from warning page, user enters new URL in address bar, it may not be scanned
-                // ? Check the random number and redirect accordingly
-                if (isMaliciousUrl) {
+                // TODO new: if blank URL (or fetched===false), do NOT update the tab anymore!
+                if ((isMaliciousUrl && !isSkipped) && !(isSkipped && !isFetchable)) {
                     chrome.tabs.update(details.tabId, { url: `${chrome.runtime.getURL("warning_page/warning_page.html")}` });
                 }
+                // ? logic: UPDATE tab when isMaliciousUrl && !isSkipped && (isFetchable?)
+                // ? ...or !isFetchable && !isSkipped  
             });
+            
         }
     });
 });
@@ -120,22 +174,31 @@ chrome.runtime.onMessage.addListener(
             
             chrome.storage.local.get(
                 ["redirectUrls"],
-                (items) => {  
-                    urlStatus = items["redirectUrls"][tabId]["serverResult"]["message"];
-                    if (urlStatus !== "Benign" && !(urlStatus.includes("Benign"))) {
-                        // indicate a MALICIOUS link! Send a red notification
-                        msgProps["style"] = "danger";
-                        msgProps["heading"] = "Malicious URL detected!";
-                        msgProps["description"] = "SecURL identified this link as a malicious URL! Be wary of any threats and browse safely!"
-                    } else { // must be BENIGN
-                        msgProps["style"] = "safe";
-                        msgProps["heading"] = "This URL is safe!";
-                        msgProps["description"] = "SecURL did not identify anything suspicious with the link.";
-                    }
+                (items) => {
+                    let tabProps = items["redirectUrls"][tabId];
+                    if (tabProps!=null){
+                        console.log("tabProps");
+                        console.log(tabProps);
+                        urlStatus = items["redirectUrls"][tabId]["serverResult"]["message"];
+                        if (urlStatus !== "Benign" && !(urlStatus.includes("Benign"))) {
+                            // indicate a MALICIOUS link! Send a red notification
+                            msgProps["style"] = "danger";
+                            msgProps["heading"] = "Malicious URL detected!";
+                            msgProps["description"] = "SecURL identified this link as a malicious URL! Be wary of any threats and browse safely!"
+                        } else { // must be BENIGN
+                            msgProps["style"] = "safe";
+                            msgProps["heading"] = "This URL is safe!";
+                            msgProps["description"] = "SecURL did not identify anything suspicious with the link.";
+                        }
+    
+                        // ! chrome.storage.local.get is ASYNC! Continue the function within the callback function...
+                        // sendResponse({ action: "open_notif", notif: msgProps });
+                        chrome.tabs.sendMessage(sender.tab.id, { action: "open_notif", notif: msgProps });
+                    } else { // undefined! wait for the RESULT first!
+                        // TODO: either force obtain new results here, or wait for task above to finish?
+                        // ! Attempt 1: force obtain new results here [WIP]
 
-                    // ! chrome.storage.local.get is ASYNC! Continue the function within the callback function...
-                    // sendResponse({ action: "open_notif", notif: msgProps });
-                    chrome.tabs.sendMessage(sender.tab.id, { action: "open_notif", notif: msgProps });
+                    }
                 }
             );
         } else {

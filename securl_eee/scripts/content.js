@@ -81,8 +81,8 @@ async function initializeContentScript() {
         
     // ! send the message to the background script stating that we're ready to trigger the notification
     const response = await chrome.runtime.sendMessage({message: "tab_ready"});
-    console.log("We sent a message! See the response:");
-    console.log(response);
+    // console.log("We sent a message! See the response:");
+    // console.log(response);
 
     // // ! trigger the notification (and other necessary actions) here depending on response of server!
     // if (response.hasOwnProperty("action") && response.action === "open_notif"){
