@@ -1,3 +1,5 @@
+var pageLoaded = false;
+
 console.log(`SecURL detected URL: ${window.location.toString()}`);
 
 // ** CUSTOM BANNER FOR STATUS
@@ -47,6 +49,7 @@ chrome.storage.local.get(['randomNumber','redirectUrls'], function (result) {
 // window.addEventListener("DOMContentLoaded", async function () {
 if (document.readyState !== "loading") {
     initializeContentScript(); // Or setTimeout(onReady, 0); if you want it consistently async
+    pageLoaded = true;
 } else {
     document.addEventListener("DOMContentLoaded", initializeContentScript);
 }
@@ -72,42 +75,26 @@ async function initializeContentScript() {
     //     });
     // });
 
+    // confirm that the page is already loaded, ready to trigger notifications
+    pageLoaded = true;
     
-    // ? Listen for message to trigger the notification banner, if applicable only\
-    // TODO: remove this listener if not necessary
-    // ! IMPORTANT: sendResponse doesnt trigger the onMessage listener. Instead, it goes to the *response* variable.
-    chrome.runtime.onMessage.addListener(
-        function(request, sender, sendResponse) {
-            console.log(sender.tab ?
-                "from a content script:" + sender.tab.url :
-                "from the extension");
-            
-            console.log(request);
-            
-            if (request.hasOwnProperty("action") && request.action === "open_notif"){
-                // sendResponse({farewell: "goodbye"});
-                console.log("Received a signal to trigger the notification. Go!");
-                createNotif();
-            } else {
-                console.log("Received no greeting but Hi.");       
-            }
-        }
-    );
         
     // ! send the message to the background script stating that we're ready to trigger the notification
     const response = await chrome.runtime.sendMessage({message: "tab_ready"});
     console.log("We sent a message! See the response:");
     console.log(response);
 
-    // ! trigger the notification (and other necessary actions) here depending on response of server!
-    if (response.hasOwnProperty("action") && response.action === "open_notif"){
-        // sendResponse({farewell: "goodbye"});
-        console.log("Received a signal to trigger the notification. Go!");
-        createNotif();
-    } else {
-        console.log("Received no greeting but Hi.");
+    // // ! trigger the notification (and other necessary actions) here depending on response of server!
+    // if (response.hasOwnProperty("action") && response.action === "open_notif"){
+    //     // sendResponse({farewell: "goodbye"});
+    //     console.log("[from response] Received a signal to trigger the notification. Go!");
+    //     console.log(response);
+    //     console.log(response.notif);
+    //     createNotif(response.notif);
+    // } else {
+    //     console.log("Received no greeting but Hi.");
         
-    }
+    // }
 
     // // Event listener for exit button
     // document.getElementById("exitButton").addEventListener("click", function () {
@@ -118,7 +105,31 @@ async function initializeContentScript() {
     // });
 }
 
-function createNotif(){
+// ? Listen for message to trigger the notification banner, if applicable only
+// TODO: remove this listener if not necessary
+// ! IMPORTANT: sendResponse doesnt trigger the onMessage listener. Instead, it goes to the *response* variable.
+chrome.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+        console.log(sender.tab ?
+            "from a content script:" + sender.tab.url :
+            "from the extension");
+        
+        console.log(request);
+        
+        if (request.hasOwnProperty("action") && request.action === "open_notif"){
+            // sendResponse({farewell: "goodbye"});
+            console.log("Received a signal to trigger the notification. Go!");
+            // TODO: add notif properties in "notif" attribute of response
+            createNotif(request.notif);
+        } else {
+            console.log("Received no greeting but Hi.");       
+        }
+    }
+);
+
+function createNotif(options={}){
+    console.log("createNotif run with the parameters below:");
+    console.log(options);
     // If notification already exists, delete!
     var notifBox = document.querySelector("div.notif-box");
     if (notifBox){
@@ -129,12 +140,18 @@ function createNotif(){
     var divElement = document.createElement('div');
     divElement.classList.add('notif-box');
 
+    // define a class style
+    if (options.hasOwnProperty("style")){
+        // TODO: add styles for safe (benign), danger (malicious), info (notif-style). Use switch or if-else chain
+
+    }
+
     var h2Element = document.createElement('h2');
-    h2Element.textContent = 'URL Report Success';
+    h2Element.textContent = options["heading"] || 'SecURL Notification';
     divElement.appendChild(h2Element);
 
     var pElement = document.createElement('p');
-    pElement.textContent = 'Successfully sent the report to the server for feedback!';
+    pElement.textContent = options["description"] || 'Successfully sent the report to the server for feedback!';
     divElement.appendChild(pElement);
 
     // Append the div element to the body

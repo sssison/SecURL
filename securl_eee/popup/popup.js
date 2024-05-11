@@ -7,6 +7,7 @@ document.getElementById("test-req").addEventListener("click", sendTestRequest); 
 window.onload = async function(e){
     let currTab = await getCurrentTab();
     let tabId = currTab.id;
+    let urlStatus = "N/A";
     console.log('I got tabID: ' + tabId.toString());
 
     // ! caution: chrome.storage.local.get still runs async even with await keyword
@@ -17,20 +18,27 @@ window.onload = async function(e){
         // if (redirectUrls[tabId]!=null && currTab.url.includes(redirectUrls[tabId]["url"])){
         // above condition will fail for REDIRECT LINKS.
         // TODO: if link is different, UPDATE the storage? 
-        redirectUrl = redirectUrls[tabId]["url"];
-        if (redirectUrls[tabId]!=null && currTab.url.includes(redirectUrls[tabId]["url"])){
-            console.log('I also got URL: ' + redirectUrl);
+        
+        if (redirectUrls[tabId]!=null){
+            redirectUrl = redirectUrls[tabId]["url"];
+            urlStatus = redirectUrls[tabId]["serverResult"]["message"];
+            if (currTab.url.includes(redirectUrls[tabId]["url"])){
+                console.log('I also got URL: ' + redirectUrl);
+            } else {
+                console.log('Error with the redirectUrl');
+                console.log(redirectUrls[tabId]);
+                console.log("Compare href <" + currTab.url + "> and redirect <" + redirectUrls[tabId]["url"] + ">");
+            }
         } else {
-            console.log('Error with the redirectUrl');
-            console.log(redirectUrls[tabId]);
-            console.log("Compare href <" + currTab.url + "> and redirect <" + redirectUrls[tabId]["url"] + ">");
+            redirectUrl = "<none>";
+            urlStatus = "N/A";
         }
         
         // ? populate the fields
         console.log("populating the fields now...");
         document.getElementById("test-url-span").innerText = redirectUrl;
         console.log(redirectUrls[tabId]);
-        document.getElementById("test-response-span").innerText = redirectUrls[tabId]["serverResult"]["message"];
+        document.getElementById("test-response-span").innerText = urlStatus;
     });
 
     // onclick of report text, show the modal
@@ -177,6 +185,15 @@ async function sendReportPopup(){
         });
 
     // TODO: trigger notification stating success (send a message)
-    const response = chrome.tabs.sendMessage(tabId,{action: "open_notif",source: "popup"});
+    let msgProps = {
+        action: "open_notif",
+        source: "popup",
+        notif: {
+            style: "info",
+            heading: "URL Report Success!",
+            description: "Successfully sent the report to the server for feedback!"
+        }
+    }
+    const response = chrome.tabs.sendMessage(tabId, msgProps);
     // const response = chrome.runtime.sendMessage({action: "open_notif",source: "popup"});
 }
