@@ -173,6 +173,12 @@ function createNotif(options={}){
         document.querySelector("div.notif-box").style.opacity = `0`;
         // document.querySelector("div.notif-box").remove();
     },3000);
+    document.querySelector("div.notif-box").addEventListener("transitionend", function(event){
+        if (event.propertyName === "opacity" && document.querySelector("div.notif-box").style.opacity === "0"){
+            document.querySelector("div.notif-box").style.visibility = `hidden`;
+        }
+    });
+    
     
 }
 // setInterval(createNotif,6000);

@@ -7,7 +7,27 @@ document.addEventListener("DOMContentLoaded", function () {
         // Retrieve redirect URL for the current tab from storage
         chrome.storage.local.get("redirectUrls", function(data) {
             const redirectUrls = data.redirectUrls || {};
-            redirectUrl = redirectUrls[tabId]["url"];
+            let tabInfo = redirectUrls[tabId];
+            redirectUrl = tabInfo["url"];
+
+            console.log("LOADED WARNING PAGE");
+            console.log(redirectUrls[tabId]);
+
+            // TODO: update the heading text and description
+            let tabRedirectReason = tabInfo["purpose"];
+            let headingText = "Malicious URL (unknown cause)";
+            let descriptionText = "You arrived at the warning page of the chrome extension! You may return to the previous page or proceed to the next page with caution.";
+            
+            if (tabRedirectReason==="unfetchable"){
+                headingText = "Suspicious URL (Blank Website)";
+                descriptionText = "We couldn't retrieve the contents of the site! You might have been redirected to a different URL which is empty or under maintanenace, or the link may have expired. Returning to the previous page is strongly advised.";
+            } else if (tabRedirectReason==="blacklisted"){
+                headingText = "Blacklisted Site";
+                descriptionText = "This site was flagged based on your blacklist filters in the extension settings! Head back to the previous page now, or proceed with caution. Don't forget to update your blacklisted sites in the Options page as well!";
+            }
+            document.getElementById("warning-header").innerText = headingText;
+            document.getElementById("warning-description").innerText = descriptionText;
+
             // Populate button with redirect URL
             document.getElementById("proceed-page").addEventListener("click", function() {
                 // Update the *skipped* status of this tab to mark that you can ignore the warning page
@@ -38,6 +58,8 @@ document.addEventListener("DOMContentLoaded", function () {
             // fallbackUrl = fallbackUrl || '/';
             var prevPage = window.location.href;
 
+            // if BLANK SITE, go back 2
+            
             window.history.go(-1);
 
             setTimeout(function(){ 
