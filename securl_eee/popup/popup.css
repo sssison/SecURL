@@ -10,23 +10,23 @@
 }
 
 body{
-    padding: 20px;
+    padding: 0px;
     width: 250px;
     /* border: solid 2px black; */
 }
 
 h1#title{
     text-align: center;
-    font-size: 1.3125rem;
-    line-height: 1.5rem;
-    margin-bottom: 10px;
+    font-size: 1.1rem;
+    line-height: 1rem;
     font-weight: 700;
 }
 
 p{
     text-align: justify;
     margin-bottom: 7px;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 450;
 }
 
 p > span#test-url-span{ /* good for text-wrapping URLs */
@@ -39,10 +39,12 @@ button#test-req{
     margin: 0 auto;
     background-color: lightcyan;
     padding: 6px 14px;
+    border-radius: 5px;
 }
 
 div.footer-div{
     /* margin-top: 20px; */
+    margin-bottom: 20px;
     p{
         text-align: center;
     }
@@ -52,3 +54,118 @@ div.footer-div{
         cursor: pointer;
     }
 }
+
+div.header-div{
+    background-color: #2D2D2D;
+    color: white;
+    padding: 15px;
+}
+
+#contents{
+   margin-bottom: 10px; 
+}
+
+div.content-div{
+    padding: 15px 15px 0px;
+}
+
+div.active-url{
+    background-color: #f2f2f2;
+    padding: 5px;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    word-wrap: break-word;
+    word-break: break-all;
+    border-radius: 5px;
+}
+
+div.check-url-button{
+    margin: 15px;
+}
+
+div.result{
+    padding: auto;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.toggle {
+    display: grid;
+    column-gap: 20px;
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
+
+.toggle-text{
+    grid-column: 1 / span 2;
+    vertical-align: middle;
+}
+
+.toggle-button{
+    grid-column: 3;
+}
+
+/* Temporary for the toggle */
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+} 
