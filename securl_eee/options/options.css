@@ -12,7 +12,7 @@ h2{
 }
 
 div.header{
-    background-color: #2D2D2D;
+    background-color: #08415c;
     color: white;
     padding: 25px;
     margin-bottom: 20px;
@@ -135,7 +135,7 @@ button#save-options{
 }
 
 input:checked + .slider {
-    background-color: #000000;
+    background-color: #08415c;
 }
 
 input:focus + .slider {
@@ -169,7 +169,7 @@ input:checked + .slider:before {
     outline: none;
     font-size: 0.9rem;
     font-weight: 600;
-    border-bottom: 1.55px solid #2D2D2D;
+    border-bottom: 1.55px solid #08415c;
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
@@ -195,7 +195,7 @@ blockquote {
     font-weight: 400;
     margin: auto;
     padding: 10px;
-    border-left: 3px solid #2D2D2D;
+    border-left: 3px solid #08415c;
     display:inline-flex;
     line-height: 1rem;
   } 
