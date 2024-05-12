@@ -7,6 +7,10 @@
     font-family: "Inter", "Segoe UI", sans-serif;
 }
 
+h2{
+    margin-bottom: 5px;
+}
+
 div.header{
     background-color: #2D2D2D;
     color: white;
@@ -35,8 +39,168 @@ textarea#blacklist-input{
     resize: vertical;
     padding: 5px;
     margin-top: 3px;
+    min-width: 300px;
+    width: 100%;
 }
 
 button#save-options{
     margin-top: 20px;
+}
+
+#options{
+    margin-bottom: 20px;
+    text-align: justify; 
+}
+
+.toggle {
+    display: grid;
+    column-gap: 25px;
+    grid-column-start: 1;
+    grid-column-end: 5;
+}
+
+.toggle-text{
+    margin: 0;
+    padding: 0;
+    grid-column: 1 / span 2;
+    vertical-align: middle;
+}
+
+.toggle-text-left{
+    margin: 0;
+    padding: 0;
+    grid-column: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.toggle-button{
+    margin: 0;
+    padding: 0;
+    grid-column: 4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.toggle-text-right{
+    margin: 0;
+    padding: 0;
+    grid-column: 5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+ /* Temporary for the toggle */
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #000000;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #e0ffe8;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+    background-color: white;
+    color: black;
+    cursor: pointer;
+    padding: 15px 10px 15px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-bottom: 1.55px solid #2D2D2D;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.collapsible:hover {
+    background-color: white;
+}
+
+.active{
+    background-color: white;
+    border-bottom: white;
+}
+
+/* Style the collapsible content. Note: hidden by default */
+.content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: white;
+} 
+
+blockquote {
+    font-size: 0.8rem;
+    font-weight: 400;
+    margin: auto;
+    padding: 10px;
+    border-left: 3px solid #2D2D2D;
+    display:inline-flex;
+    line-height: 1rem;
+  } 
+  
+blockquote span {
+    margin-top:-5px;
+    margin-bottom:-5px;
 }

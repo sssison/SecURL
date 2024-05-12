@@ -4,6 +4,8 @@
 <head>
     <title>My Test Extension Options</title>
     <link rel="stylesheet" href="options.css" />
+
+
 </head>
 
 <body>
@@ -12,14 +14,123 @@
     </div>
     <div class="main-container">
         <div class="all-options">
-            <h1>Blacklist</h1>
-            <p>List all websites that you do not want to visit, separated by a new line</p>
-            <textarea id="blacklist-input" placeholder="ex. https://www.google.com/&#10;facebook.com"></textarea>
+
+            <h2> Security Strength </h2>
+
+            <div id = "options" class = "toggle">
+
+                <div class="toggle-text">
+
+                    <p style="font-style: italic;"> Will configure the complexity of the detection algorithm to be used in analyzing the active URL. <b>Basic Security</b> analyzes the URL structure with a short detection delay, while <b>Enhanced Security</b> takes into account the response of the link and offers more accuracy at the cost of a higher delay in response time. </p>
+
+                </div>
+
+                <div class="toggle-text-left">
+                    <p style="font-weight: 400;"> Basic </p>
+                </div>
+
+                <div class="toggle-button">
+
+                    <label class="switch" for="enchanced-input">
+                        <input type="checkbox" id="enchanced-input" name="enchanced-input" value="Enabled">
+                        <span class="slider round"> </span>
+                    </label>
+
+                </div>
+
+                <div class="toggle-text-right">
+                    <p style="font-weight: 400;"> Enhanced </p>
+                </div>
+
+            </div>
+
+            <!-- For redirect option
+
+            <h2> Redirect to Warning Page if Malicious URL is Detected </h2>
+
+            <div id = "options">
+
+                <div class="toggle">
+                    <div class="toggle-text">
+
+                        <p style="font-style: italic;"> When the algorithm flags the URL for a possible threat, automatically redirect to the warning page before accessing the link. Automatically enabled for <b>Enhanced Security</b>. </p>
+    
+                    </div>
+    
+                    <div class="toggle-text-left">
+                        <p style="font-weight: 400;"> Disabled </p>
+                    </div>
+
+                    <div class="toggle-button">
+    
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+    
+                    </div>
+
+                    <div class="toggle-text-right">
+                        <p style="font-weight: 400;"> Enabled </p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            -->
+
+            <div id = "options">
+
+                <h2>Custom Blacklist</h2>
+                <p style="font-style: italic;">List all domains or keywords in links which you wish to refrain from visiting while browsing. Any links that contain these keywords will no longer be fed to the algorithm and will instead by redirected immediately to the custom warning page. Separate each new entry with a new line.</p>
+                <textarea id="blacklist-input" placeholder="ex. https://www.google.com/&#10;facebook.com"></textarea>
+
+            </div>
+
+        </div>
+
+        <div>
+
+            <h2> Frequently Asked Questions (FAQs) </h2>
+
+            <div class="faqs" style="width: 95%; margin: auto;">
+
+                <button type="button" class="collapsible"> What is SecURL? How does it work?</button>
+                <div class="content">
+                    <blockquote>
+                        Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor
+                    </blockquote>
+                </div> 
+
+                <button type="button" class="collapsible"> How does the extension distinguish malicious links from harmless one? </button>
+                <div class="content">
+                    <blockquote>
+                        Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor
+                    </blockquote>
+                </div>
+
+                <button type="button" class="collapsible"> How is this extension different from other Chrome Extensions? </button>
+                <div class="content">
+                    <blockquote>
+                        Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor
+                    </blockquote>
+                </div> 
+
+                <button type="button" class="collapsible"> Can this extension adapt to identify freshly generated URLs? </button>
+                <div class="content">
+                    <blockquote>
+                        Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolorLorem ipsum dolor
+                    </blockquote>
+                </div> 
+
+            </div>
+
         </div>
         
-        <p>Enable enhanced security?</p>
+        <!-- <p>Enable enhanced security?</p>
         <input type="checkbox" id="enchanced-input" name="enchanced-input" value="Enabled">
-        <label for="enchanced-input"> Enhanced </label><br>
+        <label for="enchanced-input"> Enhanced </label><br> -->
         
         <button id="save-options">Save</button>
         <p id="status"></p>
