@@ -25,6 +25,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
     console.log(details)
     var redirectUrls, blacklists;
     var isMaliciousUrl = false;
+    var isBlacklisted = false;
     var response_json;
     var enhancedSec;
 
@@ -39,9 +40,11 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             // Generate a random number between 1 and 10
             const randomNumber = Math.floor(Math.random() * 10) + 1;
 
-            // TODO: check whether the URL is blacklisted (automatically malicious)
+            // -TODO: check whether the URL is blacklisted (automatically malicious)
+            // ! for multiple tabs running simultaneously, isBlacklisted may fluctuate between true/false! Double-check...
             for (var x = 0; x < blacklists.length; x++) {
                 if (details.url.includes(blacklists[x])) {
+                    isBlacklisted = true;
                     isMaliciousUrl = true;
                     break;
                 }
@@ -55,7 +58,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             //// redirectUrls[details.tabId] = details.url;
 
             var redirectUrlUpdated;
-            // var isFetchable = true;        // check whether URL's HTML is fetchable or not. Not fetchable --> malicious
+            var isFetchable = true;        // check whether URL's HTML is fetchable or not. Not fetchable --> malicious
             var isSkipped = false;          // confirm that the current site WAS skipped by the user. default: FALSE
 
             if (redirectUrls.hasOwnProperty(details.tabId)) {
@@ -65,7 +68,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 redirectUrlUpdated = {
                     "url": details.url,
                     "skipped": false,
-                    "fetched": true
+                    "fetched": true,
+                    "purpose": null
                 };
             }
 
@@ -83,13 +87,13 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 
                 // // ! experimental: update skipped depending on fetchable quality. if NOT fetchable, keep the skip state
 
-                // TODO: previously UNFETCHABLE. you need to check current URL if fetchable!
+                // -TODO: previously UNFETCHABLE. you need to check current URL if fetchable!
                 response_json = await checkIfMaliciousUrl(details.url, enhancedSec);
 
                 if (response_json["fetched"]){
                     isMaliciousUrl = (response_json["message"] !== "Benign" && !(response_json["message"].includes("Benign")));
                     isFetchable = true;
-                    redirectUrlUpdated["serverResult"] = response_json;     // store the entire JSON result in serverResult property
+                    redirectUrlUpdated["serverResult"] = JSON.parse(JSON.stringify(response_json));     // store the entire JSON result in serverResult property
                     redirectUrlUpdated["fetched"] = true;
                 } else { // failed to fetch HTML; assume malicious
                     isMaliciousUrl = true; 
@@ -119,7 +123,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                     console.log(response_json);
 
                     isMaliciousUrl = (response_json["message"] !== "Benign" && !(response_json["message"].includes("Benign")));
-                    redirectUrlUpdated["serverResult"] = response_json;     // store the entire JSON result in serverResult property
+                    redirectUrlUpdated["serverResult"] = JSON.parse(JSON.stringify(response_json));     // store the entire JSON result in serverResult property
                     redirectUrlUpdated["fetched"] = true;
                     isFetchable = true;
                     
@@ -133,14 +137,33 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 }
             }
 
+            
+            
+            // TODO: before updating storage AND redirect URL, check if condition passes to redirect URL
+            let willRedirect = false;
+            if (isMaliciousUrl && (!isSkipped || isFetchable)) {
+                // original condition: (isMaliciousUrl && !isSkipped) && !(isSkipped && !isFetchable)
+                willRedirect = true;
+
+                // TODO: add the proper reason for redirecting
+                if (isBlacklisted){
+                    redirectUrlUpdated["purpose"] = "blacklisted";
+                } else if (!isFetchable){
+                    redirectUrlUpdated["purpose"] = "unfetchable";
+                }
+
+                // console.log(`Working with isMaliciousUrl <${isMaliciousUrl}>, isSkipped <${isSkipped}>, isFetchable <${isFetchable}>`);
+                // chrome.tabs.update(details.tabId, { url: `${chrome.runtime.getURL("warning_page/warning_page.html")}` });
+            }
+
             redirectUrls[details.tabId] = JSON.parse(JSON.stringify(redirectUrlUpdated));
             console.log(`For URL <${details.url}>, isMaliciousUrl=${isMaliciousUrl} `)
 
-            redirectUrls[details.tabId] = redirectUrlUpdated;
             chrome.storage.local.set({ "redirectUrls": redirectUrls }, function () {
-                // TODO: fix the scenario wherein user proceeds to malicious link. Right now, if from warning page, user enters new URL in address bar, it may not be scanned
-                // TODO new: if blank URL (or fetched===false), do NOT update the tab anymore!
-                if ((isMaliciousUrl && !isSkipped) && !(isSkipped && !isFetchable)) {
+                // -TODO: fix the scenario wherein user proceeds to malicious link. Right now, if from warning page, user enters new URL in address bar, it may not be scanned
+                // -TODO new: if blank URL (or fetched===false), do NOT update the tab anymore!
+                if (willRedirect) {
+                    console.log(`Working with isMaliciousUrl <${isMaliciousUrl}>, isSkipped <${isSkipped}>, isFetchable <${isFetchable}>`);
                     chrome.tabs.update(details.tabId, { url: `${chrome.runtime.getURL("warning_page/warning_page.html")}` });
                 }
                 // ? logic: UPDATE tab when isMaliciousUrl && !isSkipped && (isFetchable?)
@@ -179,7 +202,7 @@ chrome.runtime.onMessage.addListener(
                     if (tabProps!=null){
                         console.log("tabProps");
                         console.log(tabProps);
-                        urlStatus = items["redirectUrls"][tabId]["serverResult"]["message"];
+                        urlStatus = tabProps["serverResult"]["message"];
                         if (urlStatus !== "Benign" && !(urlStatus.includes("Benign"))) {
                             // indicate a MALICIOUS link! Send a red notification
                             msgProps["style"] = "danger";

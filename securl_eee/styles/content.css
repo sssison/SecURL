@@ -14,6 +14,7 @@ div.notif-box{
     max-width: 350px;
     font-family: Arial,"Kulim Park", "Inter", "Segoe UI", sans-serif;
     box-sizing: border-box;
+    text-align: left;
     
     h2{
         font-family: "Kulim Park", "Inter", "Segoe UI", sans-serif;

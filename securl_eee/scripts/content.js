@@ -51,7 +51,8 @@ if (document.readyState !== "loading") {
     initializeContentScript(); // Or setTimeout(onReady, 0); if you want it consistently async
     pageLoaded = true;
 } else {
-    document.addEventListener("DOMContentLoaded", initializeContentScript);
+    // document.addEventListener("load", initializeContentScript);
+    window.addEventListener("load", initializeContentScript);
 }
 // document.addEventListener("DOMContentLoaded", initializeContentScript);
 
