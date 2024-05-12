@@ -13,3 +13,9 @@ first_flask/saved_model.sav
 /02_feature-engineering/dataset-splits_content-based
 /02_feature-engineering/final-datasets
 practice
+01_data-preprocessing/top10milliondomainsa.csv
+01_data-preprocessing/top10milliondomains.csv.zip
+03_machine-learning-model/concept-drift-detection/binary_new_Bacud_unbalanced_lexical.csv
+03_machine-learning-model/concept-drift-detection/concept-drift-detection-setup.ipynb
+first_flask/top10milliondomains.csv
+first_flask/**/*.csv

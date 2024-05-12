@@ -16,14 +16,49 @@ def get_entropy(text):
     entropy = -sum([p * log(p) / log(2.0) for p in probs])
     return entropy
 
-def get_html(url):
+def get_single_html(url):
     try:
         if 'http' not in url:
-            url = 'http://' + url
-        html = get(url, timeout=10)
+            get_url = 'http://' + url
+            html = get(get_url, timeout=1)    
+        else:
+            html = get(url, timeout=1)
         html = html.text if html else None
+        if html == None:
+            try:
+                if 'https' not in url:
+                    get_url = 'https://' + url
+                html = get(get_url, timeout=1)
+                html = html.text if html else None
+            except:
+                html = None
     except:
         html = None
+
+    if html == None:
+        raise TypeError('The source html cannot be fetched.')
+
+    return html
+
+def get_batch_html(url):
+    try:
+        if 'http' not in url:
+            get_url = 'http://' + url
+            html = get(get_url, timeout=1)    
+        else:
+            html = get(url, timeout=1)
+        html = html.text if html else None
+        if html == None:
+            try:
+                if 'https' not in url:
+                    get_url = 'https://' + url
+                html = get(get_url, timeout=1)
+                html = html.text if html else None
+            except:
+                html = None
+    except:
+        html = None
+
     return html
 
 def get_word_freq_dict(html):
