@@ -40,3 +40,15 @@ button#test-req{
     background-color: lightcyan;
     padding: 6px 14px;
 }
+
+div.footer-div{
+    /* margin-top: 20px; */
+    p{
+        text-align: center;
+    }
+    span.report-error-text{
+        text-decoration: underline;
+        color: blue;
+        cursor: pointer;
+    }
+}

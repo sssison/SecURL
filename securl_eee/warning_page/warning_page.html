@@ -11,9 +11,9 @@
         <div class="warning-box">
             <img src="../img/danger.png"/>
             <div class="warning-content">
-                <h1>Malicious URL Detected</h1>
-                <h2>Threat: <span class="threat-text">Phishing</span></h2>
-                <p>The SecURL extension scanned the link you just entered and identified it as a possible phishing site. Attackers may be trying to gain access to your private information from this site, so avoid providing sensitive data as much as possible!</p>
+                <h1 id="warning-header">Malicious URL Detected</h1>
+                <!-- <h2>Threat: <span class="threat-text">Phishing</span></h2> -->
+                <p id="warning-description">The SecURL extension scanned the link you just entered and identified it as a possible phishing site. Attackers may be trying to gain access to your private information from this site, so avoid providing sensitive data as much as possible!</p>
             </div>
             <div class="button-row">
                 <button id="return-page">Return to previous page</button>
@@ -22,9 +22,27 @@
             <!-- <p id="status"></p> -->
         </div>
         <div class="footer-div">
-            <p id="footer-text">Wrong result on the URL? <a class="report-error-text" href="https://www.google.com/">Report an error!</a></p>
+            <p id="footer-text">Wrong result on the URL? <span class="report-error-text">Report an error!</span></p>
+            <!-- <p id="footer-text">Wrong result on the URL? <span class="report-error-text" onclick="showFeedbackModal()">Report an error!</span></p> -->
         </div>
     </div>
+    
+	<div id="fb-modal-window">
+		<div id="fb-modal">
+			<h1>URL Detection Report</h1>
+			<p>Confirm that the url <span id="fb-modal-url">https://google.com/</span> is a benign site?</p>
+			<div id="fb-btn-grp">
+				<button id="fb-cancel">Cancel</button>
+				<button id="fb-confirm">Confirm</button>
+			</div>
+		</div>
+	</div>
+
+    <div class="notif-box">
+        <h2>URL Report Success</h2>
+        <p>Successfully sent the report to the server for feedback!</p>
+    </div>
+
     <!-- <select id="color">
         <option value="red">red</option>
         <option value="green">green</option>

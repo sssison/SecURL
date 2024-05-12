@@ -3,10 +3,12 @@ from flask import request, jsonify
 from random import randint
 from model_predictor import predict_maliciousness_lexical, predict_maliciousness_content
 from time import time
+from lexical_generator import lexical_generator
+from rf_scoretime import rf_predict_maliciousness, xgb_predict_maliciousness
+import threading
+import time
 import feature_generator
 from whitelist_checker import is_dom_top
-import threading
-
 import pandas as pd                     # For data transformation
 import numpy as numpy                   # For scientific calculations
 from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict

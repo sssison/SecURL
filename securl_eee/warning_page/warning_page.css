@@ -36,8 +36,9 @@ div.warning-box{
     }
     div.warning-content{
         margin-bottom: 25px;
-        h2{
-            margin-bottom: 12px;
+        h1{
+            font-size: 1.75rem;
+            margin-bottom: 10px;
         }
     }
     div.button-row{
@@ -67,4 +68,69 @@ div.footer-div{
     p{
         text-align: center;
     }
+    span.report-error-text{
+        text-decoration: underline;
+        color: blue;
+        cursor: pointer;
+    }
+}
+
+div#fb-modal-window{
+    display: none;      /* display: flex */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+
+    div#fb-modal{
+        width: 50%;
+        height: fit-content;
+        /* display: flex; */
+        background-color: rgb(235,235,235);
+        padding: 30px;
+
+        p{
+            margin-bottom: 15px;
+        }
+        span#fb-modal-url{
+            font-weight: bold;
+        }
+    }
+}
+
+button{
+    cursor: pointer;
+}
+
+div.notif-box{
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 15px;
+    visibility: hidden;
+    z-index: 99999;
+    max-width: 350px;
+
+    h2{
+        font-size: 22px;
+    }
+    p{
+        font-size: 14px;
+        /* line-height: 16px; */
+    }
+}
+
+/* for resetting animations / transitions */
+.notransition {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
 }
