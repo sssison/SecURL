@@ -23,7 +23,7 @@ SecURL is a web extension that utilizes machine learning to detect malicious URL
     - Safari
 2. Must have EEE VPN/UP Wifi access.
     - If you are currently in EEE and connected through eduroam, no need to use VPN.
-    - Otherwise, download the [EEEI VPN profile](https://drive.google.com/file/d/1wY9TiykZsIbkV0BWSkmfpHjN_IgaBR3b/view?usp=sharing) and follow these guides ([Windows](https://drive.google.com/file/d/132MAgs0sM491BnlXBnbxgsnevXGb8aSY/view?usp=sharing), [Mac](https://drive.google.com/file/d/1TdOHaGkw_ENCccQMUHwhbdR457mO9Zui/view?usp=sharing)) access to the EEE network.
+    - Otherwise, download the [EEEI VPN profile](https://drive.google.com/file/d/1wY9TiykZsIbkV0BWSkmfpHjN_IgaBR3b/view?usp=sharing) and Open VPN for [Windows](https://openvpn.net/downloads/openvpn-connect-v3-windows.msi)/[Mac](https://openvpn.net/downloads/openvpn-connect-v3-macos.dmg) and follow these guides ([Windows](https://drive.google.com/file/d/132MAgs0sM491BnlXBnbxgsnevXGb8aSY/view?usp=sharing), [Mac](https://drive.google.com/file/d/1TdOHaGkw_ENCccQMUHwhbdR457mO9Zui/view?usp=sharing)) access to the EEE network.
 
 ### Installation Guide
 
