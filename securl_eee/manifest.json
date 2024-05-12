@@ -21,12 +21,13 @@
   },
   "action": {
     "default_popup": "popup/popup.html",
-    "default_icon": "img/hello_extensions.png"
+    "default_icon": "img/icons/logo.png"
   },
   "options_page": "options/options.html",
   "permissions": [
     "activeTab",
     "storage",
-    "webNavigation"
+    "webNavigation",
+    "tabs"
   ]
 }

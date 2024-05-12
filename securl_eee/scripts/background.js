@@ -137,7 +137,9 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 }
             }
 
-            
+            // TODO: update extension icon
+            // ? assumption: there already is a result
+            updateIcon((isMaliciousUrl ? "malicious" : "benign"));
             
             // TODO: before updating storage AND redirect URL, check if condition passes to redirect URL
             let willRedirect = false;
@@ -179,6 +181,43 @@ chrome.tabs.onReplaced.addListener(function (addedTabId, removedTabId) {
     console.log(`added Tab: ${addedTabId} and removed Tab: ${removedTabId}`);
 });
 
+// TODO: upon switching tabs or opening the active tab, change the icon depending on malicious status
+chrome.tabs.onActivated.addListener(activeInfo => {
+    chrome.tabs.get(activeInfo.tabId, tab => {
+        // TODO: Check some condition to determine which icon to use
+        // const shouldUseIcon1 = tab.url.includes("example.com");
+        let siteSafety = "N/A";
+
+        chrome.storage.local.get(
+            ["redirectUrls"],
+            (items) => {
+                if (items["redirectUrls"]!=null && items["redirectUrls"][activeInfo.tabId]!=null){
+                    let tabProps = items["redirectUrls"][activeInfo.tabId];
+                    if (tabProps!=null && tabProps["serverResult"]!=null){
+                        console.log("tabProps");
+                        console.log(tabProps);
+                        urlStatus = tabProps["serverResult"]["message"];
+                        if (urlStatus !== "Benign" && !(urlStatus.includes("Benign"))) {
+                            siteSafety = "malicious";
+                        } else { // must be BENIGN
+                            siteSafety = "benign";
+                        }
+
+                        // ! chrome.storage.local.get is ASYNC! Continue the function within the callback function...
+                        // sendResponse({ action: "open_notif", notif: msgProps });
+                        // chrome.tabs.sendMessage(sender.tab.id, { action: "open_notif", notif: msgProps });
+                    } else { // undefined! wait for the RESULT first!
+                        // TODO: no result yet, so take default icon
+                        siteSafety = "others";
+                    }
+                    // TODO: update the icon
+                    updateIcon(siteSafety);
+                }
+            }
+        );
+    });
+});
+
 // ! Listen for message to trigger the notification banner, if applicable only
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
@@ -199,7 +238,7 @@ chrome.runtime.onMessage.addListener(
                 ["redirectUrls"],
                 (items) => {
                     let tabProps = items["redirectUrls"][tabId];
-                    if (tabProps!=null){
+                    if (tabProps!=null && tabProps["serverResult"]!=null){
                         console.log("tabProps");
                         console.log(tabProps);
                         urlStatus = tabProps["serverResult"]["message"];
@@ -229,6 +268,31 @@ chrome.runtime.onMessage.addListener(
         }
     }
 );
+
+function updateIcon(status){
+    // Set the icon based on the condition
+    let iconPath = "../img/icons/";
+    let iconName;
+    
+    if (status==="benign"){
+        iconName = "logo_benign.png";
+    } else if (status==="malicious"){
+        iconName = "logo_malicious.png";
+    } else {
+        iconName = "logo.png";
+    }
+
+    // Update the icon
+    chrome.action.setIcon(
+        {
+            path: {
+                "16": (iconPath + iconName),
+                "48": (iconPath + iconName),
+                "128": (iconPath + iconName)
+            }
+        }
+    );
+}
 
 async function checkIfMaliciousUrl(currentUrl, isEnhancedSec) {
     var serverUrl = "http://10.158.66.12:5000/securl?";
