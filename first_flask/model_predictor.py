@@ -28,9 +28,9 @@ def predict_maliciousness_lexical(url_features):
 
     match pipeline.predict(url_features):
             case 0:
-                return "Benign*"
+                return "Benign"
             case 1:
-                return "Malware*"
+                return "Malware"
         
 def predict_maliciousness_content(url_features):
     """
@@ -46,6 +46,6 @@ def predict_maliciousness_content(url_features):
 
     match pipeline.predict(url_features):
             case 0:
-                return "Benign*"
+                return "Benign"
             case 1:
-                return "Malware*"
+                return "Malware"

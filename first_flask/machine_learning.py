@@ -76,6 +76,7 @@ def hyperparameter_tuning(X_train, y_train):
 
     # Create an Optuna study and optimize the objective function
     study = optuna.create_study(direction='minimize')
+    
     study.optimize(objective, n_trials=100) # Control the number of trials
 
     # Print the best hyperparameters and the best RMSE
@@ -83,7 +84,7 @@ def hyperparameter_tuning(X_train, y_train):
 
     return best_params
 
-def model_training(X_train, y_train, X_test, y_test, best_params):
+def model_training(X_train, y_train, X_test, y_test, best_params, filename):
     """
     The function `model_training` trains an XGBoost classifier with specified parameters, evaluates its
     performance, and saves the trained model.
@@ -107,6 +108,7 @@ def model_training(X_train, y_train, X_test, y_test, best_params):
     dtrain = DMatrix(X_train, label=y_train)
     dtest = DMatrix(X_test, label=y_test)
 
+    print("Retraining still ongoing...")
     xgb_classifier = train(best_params, dtrain, num_boost_round=5000)
     y_pred = xgb_classifier.predict(dtest)
 
@@ -114,7 +116,7 @@ def model_training(X_train, y_train, X_test, y_test, best_params):
     print(classification_report(y_test, y_pred))
 
     # Dumping the model
-    joblib.dump(xgb_classifier, 'xgb_wrapper_25_lexical-content.sav')
+    joblib.dump(xgb_classifier, filename)
 
     return
 
@@ -141,7 +143,7 @@ def concept_drift_detector(warm_up_pred, warm_up_act, test_pred, test_act):
         warning_level=2.0,
         drift_level=3.0,
         min_num_instances=len(
-            warm_up.index
+            warm_up_pred.index
         ),  # Minimum number of instances to start checking for drift
     )
 

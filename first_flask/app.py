@@ -171,6 +171,7 @@ def check_url():
     # TEMPORARY: XGB for basic security (is_secure==False), RF for enhanced security (is_secure==True) 
     time_start = time()
     in_td = is_dom_top(inp_url)
+    isFetchable = 1     # assumes that HTML of website is fetchable
 
     if in_td==1:
         prediction = "Benign"
@@ -184,7 +185,6 @@ def check_url():
 
             # Generate prediction
             prediction = predict_maliciousness_lexical(url_features)
-
         else:
             try:
                 url_features_pandas = feature_generator.content_generator(temp_list_content, inp_url)
@@ -196,14 +196,17 @@ def check_url():
                 prediction = predict_maliciousness_content(url_features)
                 isFetchable = 1
             except:
+                # TODO: assume that links without HTML are malicious
+                prediction = "Malicious"
                 isFetchable = 0
 
     time_end = time()
     random_score = randint(0,100)
 
     date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    bin_prediction = 0 if (prediction == "Benign") else 1
 
-    database_operations.add_transaction("databases/securl_transactions.db", (inp_url, date, prediction, prediction))
+    database_operations.add_transaction("databases/securl_transactions.db", (inp_url, date, bin_prediction, bin_prediction))
 
     return dict(
         status=200,
@@ -211,7 +214,8 @@ def check_url():
         safety=(random_score>60),
         url=inp_url,
         time=(time_end-time_start),
-        message=prediction
+        message=prediction,
+        fetched=(isFetchable==1)
     )
     """
     Future reference:
@@ -234,8 +238,6 @@ def report_url():
     if 'correct' in request.args:
         print("Report received!\n")
         print(f"URL {inp_url} should have been {request.args['correct']} instead of {request.args['predicted']} ")
-
-    # TODO: Update the database
 
     # ! temporary: strip off prefixes
     inp_url = inp_url.replace("https://","",1)
@@ -282,8 +284,6 @@ def test_thread_action():
 
     is_conceptDrift = machine_learning.concept_drift_detector(warm_up_predicted, warm_up_actual, test_predicted, test_actual)
 
-    # is_conceptDrift = True
-
     if (is_conceptDrift):
         try:
         
@@ -297,16 +297,21 @@ def test_thread_action():
             new_data_lexical = new_data_lexical.drop(columns = ['actual'])
             new_data_lexical = feature_engineering.lexical_generation(new_data_lexical)
 
-            new_data_lexical_content = feature_engineering.content_generation(new_data_lexical)
+            new_data_lexical_content = new_data_lexical.copy()
+
+            new_data_lexical_content = feature_engineering.content_generation(new_data_lexical_content)
 
             new_data_lexical = new_data_lexical.drop(columns=['url'])
             new_data_lexical_content = new_data_lexical_content.drop(columns=['url'])
 
+            # print(new_data_lexical.head())
+            # print(new_data_lexical_content.head())
+
             retrain_dataset_lexical = pd.concat([legacy_data_lexical, new_data_lexical])
             retrain_dataset_lexical_content = pd.concat([legacy_data_lexical_content, new_data_lexical_content])
 
-            print(retrain_dataset_lexical.head())
-            print(retrain_dataset_lexical_content.head())
+            # print(retrain_dataset_lexical.head())
+            # print(retrain_dataset_lexical_content.head())
 
             X_train_lexical, X_test_lexical, y_train_lexical, y_test_lexical = train_test_split(retrain_dataset_lexical.drop(columns=['url_type']), retrain_dataset_lexical['url_type'], test_size = 0.2, random_state=42)
             X_train_lexical_content, X_test_lexical_content, y_train_lexical_content, y_test_lexical_content = train_test_split(retrain_dataset_lexical_content.drop(columns=['url_type']), retrain_dataset_lexical_content['url_type'], test_size = 0.2, random_state=42)
@@ -314,16 +319,16 @@ def test_thread_action():
             X_train_lexical = X_train_lexical[temp_list_lexical]
             X_test_lexical = X_test_lexical[temp_list_lexical]
 
-            X_train_lexical_content = X_train_lexical_content[temp_list_content]
-            X_test_lexical_content = X_test_lexical_content[temp_list_content]
+            X_train_lexical_content = X_train_lexical_content[temp_list_content].astype(float)
+            X_test_lexical_content = X_test_lexical_content[temp_list_content].astype(float)
 
             parameters_lexical = machine_learning.hyperparameter_tuning(X_train_lexical, y_train_lexical)
             parameters_lexical_content = machine_learning.hyperparameter_tuning(X_train_lexical_content, y_train_lexical_content)
 
             print("Starting re-training...")
 
-            machine_learning.model_training(X_train_lexical, y_train_lexical, X_test_lexical, y_test_lexical, parameters_lexical, "model/xgb-lexical-test.sav")
-            machine_learning.model_training(X_train_lexical_content, y_train_lexical_content, X_test_lexical_content, y_test_lexical_content, parameters_lexical_content, "model/xgb-lexical-content-test.sav")
+            machine_learning.model_training(X_train_lexical, y_train_lexical, X_test_lexical, y_test_lexical, parameters_lexical, "model/xgb_wrapper_33_lexical.sav")
+            machine_learning.model_training(X_train_lexical_content, y_train_lexical_content, X_test_lexical_content, y_test_lexical_content, parameters_lexical_content, "model/xgb_wrapper_65_lexical-content.sav")
 
             print("Retraining finished!")
 
@@ -335,6 +340,10 @@ def test_thread_action():
             )
         except:
             isCheckingDrift = False
+            return dict(
+                status=200,
+                message="Model did not retrain!"
+            )
 
     else:
         print("No drift detected!")

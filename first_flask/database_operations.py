@@ -85,12 +85,12 @@ def update_database(db, url):
 
     for row in records:
         trans_id = row[0]
-        prediction = row[1]
+        current_prediction = row[1]
 
-    prediction = 1 if (prediction == 0) else 0
+    new_prediction = 1 if (current_prediction == 0) else 0
 
     # Execute the Update Statement
-    current.execute(query_update, (prediction, trans_id))
+    current.execute(query_update, (new_prediction, trans_id))
     database.commit()
 
     database.close()
