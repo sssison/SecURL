@@ -26,6 +26,9 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
     var redirectUrls, blacklists;
     var isMaliciousUrl = false;
     var isBlacklisted = false;
+    var redirectUrlUpdated;
+    var isFetchable = true;        // check whether URL's HTML is fetchable or not. Not fetchable --> malicious
+    var isSkipped = false;          // confirm that the current site WAS skipped by the user. default: FALSE
     var response_json;
     var enhancedSec;
 
@@ -55,21 +58,26 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             // ? already done AFTER checking whether URL skipped or not
 
             //// update the URL of the tabId ???
-            //// redirectUrls[details.tabId] = details.url;
-
-            var redirectUrlUpdated;
-            var isFetchable = true;        // check whether URL's HTML is fetchable or not. Not fetchable --> malicious
-            var isSkipped = false;          // confirm that the current site WAS skipped by the user. default: FALSE
+            //// redirectUrls[details.tabId] = details.url;            
 
             if (redirectUrls.hasOwnProperty(details.tabId)) {
                 redirectUrlUpdated = JSON.parse(JSON.stringify(redirectUrls[details.tabId]));
+                // TODO: handle the circular requests here, especially if redirecting to SAME LINK
+                console.log(`Compare URLs ${details.url} and ${redirectUrlUpdated["url"]}`);
+                if (details.url!==redirectUrlUpdated["url"] && !redirectUrlUpdated["fetched"]){
+                    console.log("Running this override");
+                    redirectUrlUpdated["skipped"] = false;
+                }
                 redirectUrlUpdated["url"] = details.url;
+                redirectUrlUpdated["hasResult"] = true;
             } else {
+                // ? add parameter for serverResult, or property indicating status of URL?
                 redirectUrlUpdated = {
                     "url": details.url,
                     "skipped": false,
                     "fetched": true,
-                    "purpose": null
+                    "purpose": null,
+                    "hasResult": false
                 };
             }
 
@@ -83,12 +91,15 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             if (redirectUrlUpdated["skipped"]) { // you only pressed the SKIP button. DO NOT REDIRECT URL!
                 isMaliciousUrl = false;
                 isSkipped = true;
+                // ! TODO: don't set to false right away? in the case of blank URLs
                 redirectUrlUpdated["skipped"] = false;
                 
                 // // ! experimental: update skipped depending on fetchable quality. if NOT fetchable, keep the skip state
 
                 // -TODO: previously UNFETCHABLE. you need to check current URL if fetchable!
                 response_json = await checkIfMaliciousUrl(details.url, enhancedSec);
+                console.log("response_json fetched following:");
+                console.log(response_json);
 
                 if (response_json["fetched"]){
                     isMaliciousUrl = (response_json["message"] !== "Benign" && !(response_json["message"].includes("Benign")));
@@ -106,17 +117,19 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 }
 
 
-                if (!redirectUrlUpdated["fetched"]) {
+                // if (!redirectUrlUpdated["fetched"]) {
                     
-                } else { // ? a fetchable URL. still store the results of the server! (analyze malicious URL)
-                    redirectUrlUpdated["skipped"] = false;
-                }
+                // } else { // ? a fetchable URL. still store the results of the server! (analyze malicious URL)
+                //     redirectUrlUpdated["skipped"] = false;
+                // }
             }
 
             // ! converted else if (!isMaliciousUrl) to if (!isMaliciousURl):
-            else if (!isMaliciousUrl) { // -TODO: <efficiency> check with the model if NOT skipped and NOT in blacklist so far
+            else if (!isBlacklisted) { // -TODO: <efficiency> check with the model if NOT skipped and NOT in blacklist so far
                 // isMaliciousUrl MAY STILL BE UPDATED! We wait for the evaluation of the model first...                
                 console.log("running checkIfMaliciousUrl with parameters <" + details.url + "> and " + enhancedSec);
+                
+                // TODO: analyze the URL with the model now!
                 response_json = await checkIfMaliciousUrl(details.url, enhancedSec);
                 if (response_json["fetched"]){
                     console.log("called response_json result");
@@ -158,6 +171,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 // chrome.tabs.update(details.tabId, { url: `${chrome.runtime.getURL("warning_page/warning_page.html")}` });
             }
 
+            console.log("here is my final redirectUrlUpdated");
+            console.log(redirectUrlUpdated);
             redirectUrls[details.tabId] = JSON.parse(JSON.stringify(redirectUrlUpdated));
             console.log(`For URL <${details.url}>, isMaliciousUrl=${isMaliciousUrl} `)
 
@@ -181,13 +196,15 @@ chrome.tabs.onReplaced.addListener(function (addedTabId, removedTabId) {
     console.log(`added Tab: ${addedTabId} and removed Tab: ${removedTabId}`);
 });
 
+/*
 // TODO: upon switching tabs or opening the active tab, change the icon depending on malicious status
 chrome.tabs.onActivated.addListener(activeInfo => {
     chrome.tabs.get(activeInfo.tabId, tab => {
         // TODO: Check some condition to determine which icon to use
         // const shouldUseIcon1 = tab.url.includes("example.com");
         let siteSafety = "N/A";
-
+        console.log("tab switching...");
+        
         chrome.storage.local.get(
             ["redirectUrls"],
             (items) => {
@@ -217,6 +234,7 @@ chrome.tabs.onActivated.addListener(activeInfo => {
         );
     });
 });
+*/
 
 // ! Listen for message to trigger the notification banner, if applicable only
 chrome.runtime.onMessage.addListener(
