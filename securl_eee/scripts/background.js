@@ -106,6 +106,9 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                     isFetchable = true;
                     redirectUrlUpdated["serverResult"] = JSON.parse(JSON.stringify(response_json));     // store the entire JSON result in serverResult property
                     redirectUrlUpdated["fetched"] = true;
+                    if (isMaliciousUrl){    // in case of malicious URL loop, still proceed
+                        isFetchable = false;    // ! temporary! just make the willRedirect condition false
+                    }
                 } else { // failed to fetch HTML; assume malicious
                     isMaliciousUrl = true; 
                     isFetchable = false;
