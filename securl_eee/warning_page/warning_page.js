@@ -24,6 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
             } else if (tabRedirectReason==="blacklisted"){
                 headingText = "Blacklisted Site";
                 descriptionText = "This site was flagged based on your blacklist filters in the extension settings! Head back to the previous page now, or proceed with caution. Don't forget to update your blacklisted sites in the Options page as well!";
+            } else if (tabRedirectReason==="malicious"){
+                headingText = "Malicious Site";
+                descriptionText = "The current website has been flagged as potentially harmful or malicious. Visiting this site could pose security risks to your device and personal information. Exercise caution and consider navigating away from this page";
             }
             document.getElementById("warning-header").innerText = headingText;
             document.getElementById("warning-description").innerText = descriptionText;
@@ -38,6 +41,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
 
             });
+
+            // Event listener for exit button
+            // ? moved here 05-14-2024
+            document.getElementById("return-page").addEventListener("click", function () {
+                // Return to previous link... or close the tab
+                chrome.tabs.getCurrent(function (tab) {
+                    // chrome.tabs.remove(tab.id);
+                    // fallbackUrl = fallbackUrl || '/';
+                    var prevPage = window.location.href;
+
+                    // ! EXPERIMENTAL: if MALICIOUS SITE, go back 2
+                    if (tabRedirectReason==="malicious"){
+                        window.history.go(-2);
+                    } else {
+                        window.history.go(-1);
+                    }
+
+                    setTimeout(function(){ 
+                        if (window.location.href == prevPage) {
+                            chrome.tabs.remove(tab.id);
+                        }
+                    }, 200);
+                    
+                    // history.back();
+                });
+            });
         });
     });
 
@@ -49,28 +78,6 @@ document.addEventListener("DOMContentLoaded", function () {
             ...
         });
     */
-
-    // Event listener for exit button
-    document.getElementById("return-page").addEventListener("click", function () {
-        // Return to previous link... or close the tab
-        chrome.tabs.getCurrent(function (tab) {
-            // chrome.tabs.remove(tab.id);
-            // fallbackUrl = fallbackUrl || '/';
-            var prevPage = window.location.href;
-
-            // if BLANK SITE, go back 2
-            
-            window.history.go(-1);
-
-            setTimeout(function(){ 
-                if (window.location.href == prevPage) {
-                    chrome.tabs.remove(tab.id);
-                }
-            }, 200);
-            
-            // history.back();
-        });
-    });
 
     // onclick of report text, show the modal
     document.querySelector(".report-error-text").addEventListener("click",openReportModal);

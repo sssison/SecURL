@@ -77,9 +77,18 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                     "skipped": false,
                     "fetched": true,
                     "purpose": null,
-                    "hasResult": false
+                    "hasResult": false,
+                    "flagged": false
                 };
             }
+
+            // ! EXPERIMENTAL: update the local storage right away just to update hasResult to false (a.k.a in progress)
+            redirectUrlUpdated["hasResult"] = false;
+            redirectUrls[details.tabId] = JSON.parse(JSON.stringify(redirectUrlUpdated));
+            console.log(`For URL <${details.url}>, isMaliciousUrl=${isMaliciousUrl} `)
+
+            await setInStorage({ "redirectUrls": redirectUrls });
+            console.log("Now proceeding with skipping...");
 
             // ? check if user already whitelisted the site OR proceeded to link (coming from warning page)
             // ? this is checked by skipped: true
@@ -155,24 +164,35 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
 
             // TODO: update extension icon
             // ? assumption: there already is a result
-            updateIcon((isMaliciousUrl ? "malicious" : "benign"));
+            updateIcon(((isMaliciousUrl || isSkipped) ? "malicious" : "benign"));
             
             // TODO: before updating storage AND redirect URL, check if condition passes to redirect URL
             let willRedirect = false;
             if (isMaliciousUrl && (!isSkipped || isFetchable)) {
                 // original condition: (isMaliciousUrl && !isSkipped) && !(isSkipped && !isFetchable)
                 willRedirect = true;
-
-                // TODO: add the proper reason for redirecting
-                if (isBlacklisted){
-                    redirectUrlUpdated["purpose"] = "blacklisted";
-                } else if (!isFetchable){
-                    redirectUrlUpdated["purpose"] = "unfetchable";
-                }
-
+                
                 // console.log(`Working with isMaliciousUrl <${isMaliciousUrl}>, isSkipped <${isSkipped}>, isFetchable <${isFetchable}>`);
                 // chrome.tabs.update(details.tabId, { url: `${chrome.runtime.getURL("warning_page/warning_page.html")}` });
+            } else {
+                redirectUrlUpdated["purpose"] = null;
             }
+
+            // TODO: add the proper reason for redirecting.
+            // ! moved the logic from inside the willRedirect block to outside (after the block)
+            if (isBlacklisted){
+                redirectUrlUpdated["purpose"] = "blacklisted";
+            } else if (!isFetchable){
+                redirectUrlUpdated["purpose"] = "unfetchable";
+            } else if (isMaliciousUrl){
+                redirectUrlUpdated["purpose"] = "malicious";
+            } else {
+                redirectUrlUpdated["purpose"] = null;
+            }
+
+            // update flagged attribute. Good for updating extension icon
+            redirectUrlUpdated["flagged"] = isMaliciousUrl || isSkipped;
+            redirectUrlUpdated["hasResult"] = true;
 
             console.log("here is my final redirectUrlUpdated");
             console.log(redirectUrlUpdated);
@@ -199,7 +219,7 @@ chrome.tabs.onReplaced.addListener(function (addedTabId, removedTabId) {
     console.log(`added Tab: ${addedTabId} and removed Tab: ${removedTabId}`);
 });
 
-/*
+
 // TODO: upon switching tabs or opening the active tab, change the icon depending on malicious status
 chrome.tabs.onActivated.addListener(activeInfo => {
     chrome.tabs.get(activeInfo.tabId, tab => {
@@ -216,12 +236,15 @@ chrome.tabs.onActivated.addListener(activeInfo => {
                     if (tabProps!=null && tabProps["serverResult"]!=null){
                         console.log("tabProps");
                         console.log(tabProps);
-                        urlStatus = tabProps["serverResult"]["message"];
-                        if (urlStatus !== "Benign" && !(urlStatus.includes("Benign"))) {
-                            siteSafety = "malicious";
-                        } else { // must be BENIGN
-                            siteSafety = "benign";
-                        }
+                        urlStatus = tabProps["flagged"];
+                        siteSafety = (urlStatus ? "malicious" : "benign");
+
+                        // urlStatus = tabProps["serverResult"]["message"];
+                        // if (urlStatus !== "Benign" && !(urlStatus.includes("Benign"))) {
+                        //     siteSafety = "malicious";
+                        // } else { // must be BENIGN
+                        //     siteSafety = "benign";
+                        // }
 
                         // ! chrome.storage.local.get is ASYNC! Continue the function within the callback function...
                         // sendResponse({ action: "open_notif", notif: msgProps });
@@ -237,7 +260,7 @@ chrome.tabs.onActivated.addListener(activeInfo => {
         );
     });
 });
-*/
+
 
 // ! Listen for message to trigger the notification banner, if applicable only
 chrome.runtime.onMessage.addListener(
@@ -289,6 +312,31 @@ chrome.runtime.onMessage.addListener(
         }
     }
 );
+
+function getFromStorage(keys) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(keys, (result) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+function setInStorage(items) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.set(items, () => {
+            console.log("Done with setting!!!");
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
 
 function updateIcon(status){
     // Set the icon based on the condition

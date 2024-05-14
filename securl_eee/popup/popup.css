@@ -88,6 +88,14 @@ div.result{
     font-size: 1rem;
     text-align: center;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+div.result  img{
+    width: 40px;
 }
 
 .toggle {
@@ -169,3 +177,4 @@ input:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 } 
+
