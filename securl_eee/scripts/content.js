@@ -56,6 +56,12 @@ if (document.readyState !== "loading") {
 }
 // document.addEventListener("DOMContentLoaded", initializeContentScript);
 
+var referrer = document.referrer;
+if (referrer) {
+    console.log("!!! The user was redirected from: " + referrer);
+} else {
+    console.log("!!! No referrer information available.");
+}
 
 async function initializeContentScript() {
     // get the current Tab ID
@@ -121,7 +127,7 @@ chrome.runtime.onMessage.addListener(
             // sendResponse({farewell: "goodbye"});
             console.log("Received a signal to trigger the notification. Go!");
             // TODO: add notif properties in "notif" attribute of response
-            createNotif(request.notif);
+            setTimeout(createNotif,1000,request.notif);
         } else {
             console.log("Received no greeting but Hi.");       
         }

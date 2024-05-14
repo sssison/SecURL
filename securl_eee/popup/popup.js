@@ -1,44 +1,95 @@
 var redirectUrl;
 
 console.log('This is a popup!');
-document.getElementById("test-req").addEventListener("click", sendTestRequest); //or add method for testing only!
+// document.getElementById("test-req").addEventListener("click", sendTestRequest); //or add method for testing only!
 
 // ? onload, fetch the results of the model
 window.onload = async function(e){
     let currTab = await getCurrentTab();
+    let isEnhancedSec = await getIsEnhancedSec();
     let tabId = currTab.id;
     let urlStatus = "N/A";
     console.log('I got tabID: ' + tabId.toString());
 
     // ! caution: chrome.storage.local.get still runs async even with await keyword
-    chrome.storage.local.get("redirectUrls", function(data) {
+    chrome.storage.local.get(["redirectUrls"], function(data) {
         const redirectUrls = data.redirectUrls || {};
-        console.log('I got redirectUrls');
+        console.log('I got redirectUrls at tabId ' + tabId.toString());
         console.log(redirectUrls);
         // if (redirectUrls[tabId]!=null && currTab.url.includes(redirectUrls[tabId]["url"])){
         // above condition will fail for REDIRECT LINKS.
         // TODO: if link is different, UPDATE the storage? 
-        
+
+        let tabProps = {};
         if (redirectUrls[tabId]!=null){
-            redirectUrl = redirectUrls[tabId]["url"];
-            urlStatus = redirectUrls[tabId]["serverResult"]["message"];
-            if (currTab.url.includes(redirectUrls[tabId]["url"])){
-                console.log('I also got URL: ' + redirectUrl);
-            } else {
-                console.log('Error with the redirectUrl');
-                console.log(redirectUrls[tabId]);
-                console.log("Compare href <" + currTab.url + "> and redirect <" + redirectUrls[tabId]["url"] + ">");
+            tabProps = JSON.parse(JSON.stringify(redirectUrls[tabId]));
+            console.log("Starting popup script here with tabProps");
+            console.log(tabProps);
+
+            redirectUrl = tabProps["url"];
+            
+            console.log(`Comparing serverResult and tabProps[url] <${tabProps["url"]}> and currTab[url] <${currTab.url}>`);
+            console.log(tabProps["serverResult"]);
+
+            // ! EXPERIMENT: check if server result already ready or not
+            if (tabProps["serverResult"]!=null && tabProps["hasResult"]){
+                // tabProps["url"]===currTab.url
+                urlStatus = tabProps["serverResult"]["message"];
+                
+                // only for debugging purposes!
+                if (currTab.url.includes(redirectUrls[tabId]["url"])){
+                    console.log('I also got URL: ' + redirectUrl);
+                } else {
+                    console.log('Error with the redirectUrl');
+                    console.log(redirectUrls[tabId]);
+                    console.log("Compare href <" + currTab.url + "> and redirect <" + redirectUrls[tabId]["url"] + ">");
+                }
+            } else { // server is not done analyzing, or the URL is incorrect!
+                urlStatus = "Analyzing";
             }
-        } else {
+
+            
+        } else { // TODO: put fallback values here if no redirectUrl values for tab!
             redirectUrl = "<none>";
             urlStatus = "N/A";
         }
         
+        // TODO: if results are available, fill in the fields. Otherwise, put a default!
+
         // ? populate the fields
         console.log("populating the fields now...");
         document.getElementById("test-url-span").innerText = redirectUrl;
         console.log(redirectUrls[tabId]);
         document.getElementById("test-response-span").innerText = urlStatus;
+        
+        // update the image src, located in img folder
+        document.querySelector("div.result > img").src = `../img/${(tabProps["flagged"] || urlStatus==="Analyzing") ? "danger" : "secure"}.png`;
+        // document.querySelector("div.result > img").src = `../img/${urlStatus!=="Benign" && !(urlStatus.includes("Benign")) ? "danger" : "secure"}.png`;
+
+        // update the security strength
+        document.querySelector("span.sec-strength").innerText = (isEnhancedSec ? "Enhanced" : "Basic");
+
+        // update the status description: Benign, Malicious, Blacklisted, Blank Site
+        let statusText = "";
+        if (tabProps["flagged"]) {
+            if (tabProps["purpose"]==="blacklisted"){
+                statusText = "The current website matches your personal blacklist filters. Proceed with caution as this site has been flagged by your settings.";
+            } else if (tabProps["purpose"]==="unfetchable"){
+                statusText = "The site appears to be empty or the contents cannot be fetched by the server. This could indicate a security risk.";
+            } else if (tabProps["purpose"]==="malicious"){
+                statusText = "Alert: The current website has been flagged as potentially harmful or malicious. Visiting this site could pose security risks to your device and personal information.";
+            } else {
+                statusText = "This page has been flagged for unidentified security reasons.";
+            }
+        } else if (urlStatus==="Analyzing") {
+            // TODO: change popup, or adjust status text!
+            // ! important edit needed! also check condition for icon
+            statusText = "The server is still analyzing the result! Check back later for the results";
+        } else {
+            statusText = "No threats were detected in this webpage. You're good to go!";
+        }
+
+        document.querySelector("p.result-description").innerText = statusText;
     });
 
     // onclick of report text, show the modal

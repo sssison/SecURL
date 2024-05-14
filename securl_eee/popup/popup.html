@@ -9,57 +9,42 @@
 	<!-- <h1> SecURL: A Machine Learning-based Malicious URL Detector </h1> -->
 	<!-- <p> Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Pretium quam vulputate dignissim suspendisse in est ante in. Ipsum nunc aliquet bibendum enim. </p> -->
 
-	<div class = "header-div">
+	<div class="header-div">
 
 		<h1 id="title"> SecURL: A Malicious URL Detector </h1>
 
 	</div>
 
-	<div class = "content-div">
-
-		<div id = "contents">
-
-			<p>
-				Active URL: <br>
-			</p>
-
-			<div class = "active-url">
-
+	<div class="content-div">
+		<div id="contents">
+			<p>Active URL: <br></p>
+			<div class="active-url">
 				<span id="test-url-span">(no url)</span>
-
 			</div>
 
 		</div>
 
-		<div id = "contents">
+		<div id="contents">
 
 			<p>
 				URL Analysis Result: <br>
 			</p>
 
-				<!-- Insert picture for malware or benign -->
-			<div class = "result">
-
+			<!-- Insert picture for malware or benign -->
+			<div class="result">
+				<img src="../img/secure.png" />
 				<span id="test-response-span">(no url)</span>
-
-				<p style="font-style: italic; text-align: center;padding-top: 10px; font-size: 0.65em; font-weight: 300;">
-
-					<!-- Sample Text: This URL is possibly malicious which may compromise your system when accessed. It is advised to return to previous page immediately. -->
-
-					(no url)
-
-				</p>
-
 			</div>
-
+			<p class="result-description"
+				style="font-style: italic; text-align: center;padding-top: 10px; font-size: 0.65em; font-weight: 300;">
+				<!-- Sample Text: This URL is possibly malicious which may compromise your system when accessed. It is advised to return to previous page immediately. -->
+				(no url)
+			</p>
 		</div>
-
-		<div id = "contents" class = "toggle">
-
+		<div id="contents" class="toggle">
 			<p>
-				Security Strength: (default)
-			</p> 
-
+				Security Strength: <span class="sec-strength">N/A</span>
+			</p>
 			<!--
 
 				<div class = "toggle-text">
@@ -86,14 +71,10 @@
 			-->
 
 		</div>
-
 	</div>
-	
 	<div class="footer-div">
-
 		<p id="footer-text">Wrong result? <span class="report-error-text">Report an error!</span></p>
 		<!-- <p id="footer-text">Wrong result on the URL? <span class="report-error-text" onclick="showFeedbackModal()">Report an error!</span></p> -->
-	
 	</div>
 
 	<!-- TODO: remove this 
