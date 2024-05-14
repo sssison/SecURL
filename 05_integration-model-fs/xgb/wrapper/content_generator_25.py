@@ -7,6 +7,23 @@ from datetime import datetime
 import feature_generation_lexical_function
 from sklearn.preprocessing import LabelEncoder
 import urllib
+import tldextract
+import requests
+
+def openpagerank_req(in_url):
+    headers = {'API-OPR':'c0cgo404oowwwgwog00o0scw4cc8ggs0k848kgww '}
+    ext = tldextract.extract(in_url)
+    domain = ext.registered_domain
+    url = 'https://openpagerank.com/api/v1.0/getPageRank?domains%5B0%5D=' + domain
+    request = requests.get(url, headers=headers)
+
+    result = request.json()
+    
+    rank = result['response'][0]['rank']
+    if rank is not None:
+        return int(rank)
+    else:
+        return 10000001
 
 def url_scheme(url):
     scheme_lookup = pd.read_csv('scheme_lookup.csv')
@@ -28,7 +45,7 @@ def get_tld(url):
     
 def feature_generator(url):
 
-    html = feature_generation_content_function_htmlin.get_html(url)
+    html = feature_generation_content_function_htmlin.get_single_html(url)
     temp = [[url, html]]
     url_test = pd.DataFrame(temp, columns=['url', 'html'])
 

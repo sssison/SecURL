@@ -42,8 +42,6 @@ def lexical_generator(url):
 
     url_test['url_host_length'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_host_length(x))
 
-    url_test['get_tld'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.get_tld(x))
-
     url_test['url_domain_len'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_domain_len(x))
 
     url_test['url_num_subdomain'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.url_num_subdomain(x))
@@ -91,8 +89,6 @@ def lexical_generator(url):
     url_test['has_bin_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_bin_in_string(x))
 
     url_test['has_personal_in_string'] = url_test['url'].apply(lambda x: feature_generation_lexical_function.has_personal_in_string(x))
-
-    url_test['url_scheme'] = url_test['url'].apply(lambda x: url_scheme(x))
 
     url_test = url_test.drop(columns=['url'])
 
