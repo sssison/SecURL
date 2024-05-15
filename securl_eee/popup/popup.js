@@ -60,7 +60,14 @@ window.onload = async function(e){
         console.log("populating the fields now...");
         document.getElementById("test-url-span").innerText = redirectUrl;
         console.log(redirectUrls[tabId]);
-        document.getElementById("test-response-span").innerText = urlStatus;
+
+        // update the heading: Benign, Malicious (Blacklisted <ignores status benign/malicious>, Malicious, Blank)
+        // let urlStatusHeading = urlStatus;
+        // if (redirectUrls[tabId] && )
+        // if (urlStatusHeading==="Malicious"){
+            
+        // }
+        
         
         // update the image src, located in img folder
         document.querySelector("div.result > img").src = `../img/${(tabProps["flagged"] || urlStatus==="Analyzing") ? "danger" : "secure"}.png`;
@@ -71,24 +78,33 @@ window.onload = async function(e){
 
         // update the status description: Benign, Malicious, Blacklisted, Blank Site
         let statusText = "";
+        let urlStatusHeading = urlStatus;
         if (tabProps["flagged"]) {
             if (tabProps["purpose"]==="blacklisted"){
+                urlStatusHeading = "Blacklisted";
                 statusText = "The current website matches your personal blacklist filters. Proceed with caution as this site has been flagged by your settings.";
             } else if (tabProps["purpose"]==="unfetchable"){
+                urlStatusHeading = "Empty Site";
                 statusText = "The site appears to be empty or the contents cannot be fetched by the server. This could indicate a security risk.";
             } else if (tabProps["purpose"]==="malicious"){
+                urlStatusHeading = "Malicious";
                 statusText = "Alert: The current website has been flagged as potentially harmful or malicious. Visiting this site could pose security risks to your device and personal information.";
+            } else if (true) {
+                statusText = "This page has been flagged for unidentified security reasons.";
             } else {
                 statusText = "This page has been flagged for unidentified security reasons.";
             }
         } else if (urlStatus==="Analyzing") {
             // TODO: change popup, or adjust status text!
             // ! important edit needed! also check condition for icon
+            urlStatusHeading = "Analyzing";
             statusText = "The server is still analyzing the result! Check back later for the results";
         } else {
+            urlStatusHeading = "Benign";
             statusText = "No threats were detected in this webpage. You're good to go!";
         }
 
+        document.getElementById("test-response-span").innerText = urlStatusHeading;
         document.querySelector("p.result-description").innerText = statusText;
     });
 

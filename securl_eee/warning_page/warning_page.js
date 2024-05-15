@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 chrome.storage.local.set({ "redirectUrls": redirectUrls }, function() {
                     // ? Redirect user to the detected redirect URL
                     window.location.href = redirectUrl;
+                    // window.history.replaceState(null, null, redirectUrl);
                 });
 
             });
@@ -46,14 +47,25 @@ document.addEventListener("DOMContentLoaded", function () {
             // ? moved here 05-14-2024
             document.getElementById("return-page").addEventListener("click", function () {
                 // Return to previous link... or close the tab
-                chrome.tabs.getCurrent(function (tab) {
+                chrome.tabs.getCurrent(async function (tab) {
+                    let tabId = tab.id;
                     // chrome.tabs.remove(tab.id);
                     // fallbackUrl = fallbackUrl || '/';
                     var prevPage = window.location.href;
 
                     // ! EXPERIMENTAL: if MALICIOUS SITE, go back 2
-                    if (tabRedirectReason==="malicious"){
+                    // if (tabRedirectReason==="malicious" || tabRedirectReason==="unfetchable"){
+                    if (tabRedirectReason==="malicious" || tabRedirectReason==="unfetchable"){
                         window.history.go(-2);
+                        // let redirectUrlStore = await getFromStorage(["redirectUrls"]);
+                        // redirectUrlStore = redirectUrlStore[tabId];
+                        // await setInStorage({})
+                        // window.history.go(-1);
+                        // setTimeout(function(){ 
+                        //     if (window.location.href == redirectUrl) {
+                        //         window.history.go(-1);
+                        //     }
+                        // }, 80);
                     } else {
                         window.history.go(-1);
                     }
@@ -154,4 +166,29 @@ document.querySelector("div.notif-box").addEventListener('transitionend', functi
 function openReportModal(){
     document.getElementById("fb-modal-window").style.display = "flex";
     document.getElementById("fb-modal-url").innerText = redirectUrl;
+}
+
+function getFromStorage(keys) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get(keys, (result) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(result);
+            }
+        });
+    });
+}
+
+function setInStorage(items) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.set(items, () => {
+            console.log("Done with setting!!!");
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve();
+            }
+        });
+    });
 }

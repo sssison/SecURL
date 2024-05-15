@@ -78,7 +78,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                     "fetched": true,
                     "purpose": null,
                     "hasResult": false,
-                    "flagged": false
+                    "flagged": isBlacklisted
                 };
             }
 
@@ -96,6 +96,8 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
 
             console.log(`For URL <${details.url}>, skipped=${redirectUrlUpdated["skipped"]} `);
 
+            let ignoreNewUrlResult = false;
+            
             // ? Cases for a skipped site: you skipped a malicious site ("fetched"==False), you skipped a BLANK site (["fetched"]==True), or you moved to a new site (malicious or benign)
             if (redirectUrlUpdated["skipped"]) { // you only pressed the SKIP button. DO NOT REDIRECT URL!
                 isMaliciousUrl = false;
@@ -110,13 +112,15 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
                 console.log("response_json fetched following:");
                 console.log(response_json);
 
+
                 if (response_json["fetched"]){
                     isMaliciousUrl = (response_json["message"] !== "Benign" && !(response_json["message"].includes("Benign")));
                     isFetchable = true;
                     redirectUrlUpdated["serverResult"] = JSON.parse(JSON.stringify(response_json));     // store the entire JSON result in serverResult property
                     redirectUrlUpdated["fetched"] = true;
                     if (isMaliciousUrl){    // in case of malicious URL loop, still proceed
-                        isFetchable = false;    // ! temporary! just make the willRedirect condition false
+                        // isFetchable = false;    // ! temporary! just make the willRedirect condition false
+                        ignoreNewUrlResult = true;   // indicate true, meaning that you should NOT redirect to new page still
                     }
                 } else { // failed to fetch HTML; assume malicious
                     isMaliciousUrl = true; 
@@ -164,11 +168,11 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
 
             // TODO: update extension icon
             // ? assumption: there already is a result
-            updateIcon(((isMaliciousUrl || isSkipped) ? "malicious" : "benign"));
+            updateIcon(((isMaliciousUrl || isSkipped || isBlacklisted) ? "malicious" : "benign"));
             
             // TODO: before updating storage AND redirect URL, check if condition passes to redirect URL
             let willRedirect = false;
-            if (isMaliciousUrl && (!isSkipped || isFetchable)) {
+            if (isMaliciousUrl && (!isSkipped || isFetchable) && !ignoreNewUrlResult) {
                 // original condition: (isMaliciousUrl && !isSkipped) && !(isSkipped && !isFetchable)
                 willRedirect = true;
                 
@@ -191,7 +195,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(function (details) {
             }
 
             // update flagged attribute. Good for updating extension icon
-            redirectUrlUpdated["flagged"] = isMaliciousUrl || isSkipped;
+            redirectUrlUpdated["flagged"] = isMaliciousUrl || isSkipped || isBlacklisted;
             redirectUrlUpdated["hasResult"] = true;
 
             console.log("here is my final redirectUrlUpdated");
@@ -231,9 +235,11 @@ chrome.tabs.onActivated.addListener(activeInfo => {
         chrome.storage.local.get(
             ["redirectUrls"],
             (items) => {
+                // console.log('items["redirectUrls"][activeInfo.tabId]');
+                // console.log(items["redirectUrls"][activeInfo.tabId]);
                 if (items["redirectUrls"]!=null && items["redirectUrls"][activeInfo.tabId]!=null){
                     let tabProps = items["redirectUrls"][activeInfo.tabId];
-                    if (tabProps!=null && tabProps["serverResult"]!=null){
+                    if (tabProps!=null && tabProps["hasResult"]){
                         console.log("tabProps");
                         console.log(tabProps);
                         urlStatus = tabProps["flagged"];
