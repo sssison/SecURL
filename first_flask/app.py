@@ -180,6 +180,7 @@ def check_url():
 
             # Generate prediction
             prediction = predict_maliciousness_lexical(url_features)
+
         else:
             try:
                 # Lexical Features
@@ -247,6 +248,8 @@ def report_url():
         print("Report received!\n")
         print(f"URL {inp_url} should have been {request.args['correct']} instead of {request.args['predicted']} ")
 
+    # TODO: Update the database
+
     # ! temporary: strip off prefixes
     inp_url = inp_url.replace("https://","",1)
     inp_url = inp_url.replace("http://","",1)
@@ -291,6 +294,8 @@ def test_thread_action():
     # test_predicted = pd.read_csv("databases/testing-predicted.csv")
 
     is_conceptDrift = machine_learning.concept_drift_detector(warm_up_predicted, warm_up_actual, test_predicted, test_actual)
+
+    # is_conceptDrift = True
 
     if (is_conceptDrift):
         try:
@@ -340,6 +345,29 @@ def test_thread_action():
 
             print("Retraining finished!")
 
+            new_lexical_list = feature_engineering.xgb_ffs(retrain_dataset_lexical, 76)
+            new_lexical_content_list = feature_engineering.xgb_ffs(retrain_dataset_lexical_content, 113)
+
+            if new_lexical_list != temp_list_lexical:
+                temp_list_lexical = new_lexical_list
+                X_train_lexical = X_train_lexical[new_lexical_list]
+                X_test_lexical = X_test_lexical[new_lexical_list]
+                parameters_lexical = machine_learning.hyperparameter_tuning(X_train_lexical, y_train_lexical)
+
+                print("Starting re-training...")
+                machine_learning.model_training(X_train_lexical, y_train_lexical, X_test_lexical, y_test_lexical, parameters_lexical, "model/xgb_wrapper_33_lexical.sav")
+                print("Retraining finished!")
+
+            if new_lexical_content_list != temp_list_content:
+                temp_list_content = new_lexical_content_list
+                X_train_lexical_content = X_train_lexical_content[new_lexical_content_list]
+                X_test_lexical_content = X_test_lexical_content[new_lexical_content_list]
+                parameters_lexical_content = machine_learning.hyperparameter_tuning(X_train_lexical_content, y_train_lexical_content)
+
+                print("Starting re-training...")
+                machine_learning.model_training(X_train_lexical_content, y_train_lexical_content, X_test_lexical_content, y_test_lexical_content, parameters_lexical_content, "model/xgb_wrapper_65_lexical-content.sav")
+                print("Retraining finished!")
+            
             isCheckingDrift = False
             
             return dict(
