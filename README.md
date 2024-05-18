@@ -43,6 +43,13 @@ https://github.com/SupernovaExe/SecURL/assets/63900699/c2ea4703-d5ec-4895-b3a3-4
 
 ## Sample Usage
 
+### Casual Use
+
+
+### Reporting an Incorrect Benign Prediction
+
+
+### Reporting an Incorrect Malicious Prediction
 
 
 ## Get in Touch
