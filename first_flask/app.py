@@ -3,10 +3,7 @@ from flask import request, jsonify
 from random import randint
 from model_predictor import predict_maliciousness_lexical, predict_maliciousness_content
 from time import time
-from lexical_generator import lexical_generator
-from rf_scoretime import rf_predict_maliciousness, xgb_predict_maliciousness
 import threading
-import time
 import feature_generator
 from whitelist_checker import is_dom_top
 import pandas as pd                     # For data transformation
@@ -34,7 +31,6 @@ temp_list_lexical = ['url_length',
                         'url_string_entropy',
                         'url_path_length',
                         'url_host_length',
-                        'get_tld',
                         'url_domain_len',
                         'url_num_subdomain',
                         'url_number_of_fragments',
@@ -59,7 +55,6 @@ temp_list_lexical = ['url_length',
                         'has_php_in_string',
                         'has_bin_in_string',
                         'has_personal_in_string',
-                        'url_scheme'
                         ]
     
 temp_list_content = ['blank_lines_count', 
@@ -187,13 +182,26 @@ def check_url():
             prediction = predict_maliciousness_lexical(url_features)
         else:
             try:
-                url_features_pandas = feature_generator.content_generator(temp_list_content, inp_url)
-
-                # Convert pd.df to DMatrix
-                url_features = DMatrix(url_features_pandas)
+                # Lexical Features
+                url_features_pandas_lexical = feature_generator.lexical_generator(temp_list_lexical, inp_url)
+                url_features_lexical = DMatrix(url_features_pandas_lexical)
+                
+                # Lexical + Content
+                url_features_pandas_content = feature_generator.content_generator(temp_list_content, inp_url)
+                url_features_content = DMatrix(url_features_pandas_content)
 
                 # Generate prediction
-                prediction = predict_maliciousness_content(url_features)
+                prediction_lexical = predict_maliciousness_lexical(url_features_lexical)
+                prediction_content = predict_maliciousness_content(url_features_content)
+
+                print(prediction_lexical == "Malware" or prediction_content == "Malware")
+                # Enhanced Logic: If both are benign, benign. Else, malicious.
+                if (prediction_lexical == "Malware" or prediction_content == "Malware"):
+                    prediction = "Malware"
+                    
+                else:
+                    prediction = "Benign"
+
                 isFetchable = 1
             except:
                 # TODO: assume that links without HTML are malicious

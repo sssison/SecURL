@@ -35,10 +35,12 @@ def add_transaction(db, transaction_details):
     current = database.cursor()
 
     # Execute the Insert Statement
-    current.execute(sql, transaction_details)
-    database.commit()
-
-    database.close()
+    try:
+        current.execute(sql, transaction_details)
+        database.commit()
+        database.close()
+    except:
+        database.close()
 
     return 
 
@@ -90,10 +92,12 @@ def update_database(db, url):
     new_prediction = 1 if (current_prediction == 0) else 0
 
     # Execute the Update Statement
-    current.execute(query_update, (new_prediction, trans_id))
-    database.commit()
-
-    database.close()
+    try:
+        current.execute(query_update, (new_prediction, trans_id))
+        database.commit()
+        database.close()
+    except:
+        database.close()
 
     return
 
