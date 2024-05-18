@@ -41,16 +41,23 @@ And that's it! Enjoy using our extension!
 
 https://github.com/SupernovaExe/SecURL/assets/63900699/c2ea4703-d5ec-4895-b3a3-4ef3afd6126b
 
-## Sample Usage
+## Usage Guide
 
 ### Casual Use
 
+Once you have set-up the extension, it automatically determines the maliciousness of the URL that you visit. For benign sites, a pop-up notification will show up. For malicious sites, the user will be redirected to a warning page and will be given the options to proceed to the site or to go back to the previously visited site.
 
 ### Reporting an Incorrect Benign Prediction
 
+Reporting incorrect benign predictions are done through the pop-up page. To report, click the extension icon and click the report button. A pop-up notification will show up to inform the user that a report has been sent. 
 
 ### Reporting an Incorrect Malicious Prediction
 
+Reporting incorrect malicious predictions are done through the warning page. To report, click the report button in the warning page. A window will open up to check if you the user wants to proceed with reporting the prediction. A pop-up notification will also show up to inform the user after the report is sent.
+
+### Accessing the Settings Page
+
+To access the settings page, head over to the extensions button in your browser. You should be able to see all the extensions that you are currently using in your browser. Look for the SecURL extension and click the "more options" button beside it, usually it is a three-dot icon, and then click extension options. The settings page should show up. Make sure to click save for any changes that you have added to take effect. 
 
 ## Get in Touch
 
@@ -65,7 +72,12 @@ Steven Sison: steven.sison@eee.upd.edu.ph
 If you'd like to become part of testing and evaluation team, please answer this [interest form](https://forms.gle/afMVTqoTwGwe9LW69). More details will be sent through email and a qualitative survey will be conducted after the test period.
 
 ## Data Policies
+The student researchers acknowledge their responsibilities under RA 10173 or the Data Privacy Act of 2012 with regard to the information they request from their respondents.
 
-The extension will not collect any identifiable information.
-The extension will collect and retain the URLs you use for its detection and retraining services.
+By signing up to this form, you express your interest to test and provide feedback to our web extension. Pushing through with the installation means that you understand and agree to the following data policies that our extension adheres to:
+
+- The extension will not collect any identifiable information.
+- The extension will collect and retain the URLs you use for its detection and retraining services.
+
+All collected personal information will be kept strictly confidential and utilized only for research purposes. In any reports or papers that may arise from this study, all data will certainly be anonymized.
 
