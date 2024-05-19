@@ -198,6 +198,7 @@ blockquote {
     border-left: 3px solid #08415c;
     display:inline-flex;
     line-height: 1rem;
+    text-align: justify;
   } 
   
 blockquote span {

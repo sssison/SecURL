@@ -20,15 +20,15 @@ def get_single_html(url):
     try:
         if 'http' not in url:
             get_url = 'http://' + url
-            html = get(get_url, timeout=1)    
+            html = get(get_url, timeout=5)    
         else:
-            html = get(url, timeout=1)
+            html = get(url, timeout=5)
         html = html.text if html else None
         if html == None:
             try:
                 if 'https' not in url:
                     get_url = 'https://' + url
-                html = get(get_url, timeout=1)
+                html = get(get_url, timeout=5)
                 html = html.text if html else None
             except:
                 html = None

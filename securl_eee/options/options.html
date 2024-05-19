@@ -110,10 +110,18 @@
                     </blockquote>
                 </div>
 
+                <button type="button" class="collapsible"> What is the difference between Basic and Enhanced (Conservative) security strength? </button>
+                <div class="content">
+                    <blockquote>
+                        For the Basic security strength, only the URL's lexical features are utilized in order to determine the maliciousness of a URL. It comes with a short detection delay but may be inaccurate in some cases. On the other hand, Enhanced (Conservative) security strength uses a voting system with two machine learning models, one utilizing only lexical featues and another utilizing both lexical and HTML (content-based) features. It is stricter in detecting malicious URLs but comes at a higher delay in response time.
+                    </blockquote>
+                
+                </div>
+
                 <button type="button" class="collapsible"> Can this extension adapt to identify freshly generated URLs? </button>
                 <div class="content">
                     <blockquote>
-                        The extension can adapt to new and emerging threats using concept drift detection. Upon continuous use, there comes a point where the error in the extension's predictions increases, which causes a retraining of the model and reevaluation of the features to occur.
+                        The extension can adapt to new and emerging threats using concept drift detection and automated model retraining. Continuous usage of the extension allows the model to gather new datapoints. Once the model performance degrades due to new emerging trends, the algorithm detects this and automatically retrains the model to continuously adapt to new malicious URLs.
                     </blockquote>
                 </div> 
 
