@@ -47,11 +47,23 @@ https://github.com/SupernovaExe/SecURL/assets/63900699/c2ea4703-d5ec-4895-b3a3-4
 
 Once you have set-up the extension, it automatically determines the maliciousness of the URL that you visit. For benign sites, a pop-up notification will show up. For malicious sites, the user will be redirected to a warning page and will be given the options to proceed to the site or to go back to the previously visited site.
 
+#### Benign Sites
+
+https://github.com/SupernovaExe/SecURL/assets/63900699/6706cb40-1ced-469f-b558-e032b6b8e887
+
+#### Malicious Sites
+
+https://github.com/SupernovaExe/SecURL/assets/63900699/3b6f61cf-c4ce-431a-a31a-d2b3d0f8386c
+
 ### Reporting an Incorrect Benign Prediction
+
+https://github.com/SupernovaExe/SecURL/assets/63900699/c3e1a10f-e31c-4916-8333-6e5a70831de9
 
 Reporting incorrect benign predictions are done through the pop-up page. To report, click the extension icon and click the report button. A pop-up notification will show up to inform the user that a report has been sent. 
 
 ### Reporting an Incorrect Malicious Prediction
+
+https://github.com/SupernovaExe/SecURL/assets/63900699/e86cbec0-a251-4524-b280-786da41bc754
 
 Reporting incorrect malicious predictions are done through the warning page. To report, click the report button in the warning page. A window will open up to check if you the user wants to proceed with reporting the prediction. A pop-up notification will also show up to inform the user after the report is sent.
 
