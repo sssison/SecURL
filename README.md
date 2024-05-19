@@ -1,8 +1,10 @@
-<center> <h1> SecURL: A Machine Learning Based Web Extension for Malicious URL Detection </h1> </center>
+![Blue Light Blue Illustrative Tech Event Instagram Post(2)](https://github.com/SupernovaExe/SecURL/assets/63900699/c6ff14c9-ba6c-49d6-a282-85892bd024ab)
+
+<h1 align="center"> SecURL: A Machine Learning Based Web Extension for Malicious URL Detection </h1>
 
 ## About the App
 
-SecURL is a web extension that utilizes machine learning to detect malicious URLs. It is non-intrusive such that it automatically fetches and evaluates the URL input by the user in a timely manner before directing them to the site.
+SecURL is a web extension that utilizes machine learning to detect malicious URLs. It is non-intrusive and user friendly such that it automatically fetches and evaluates the URL input by the user in a timely manner before directing them to the site.
 
 ### Features
 
@@ -22,14 +24,14 @@ SecURL is a web extension that utilizes machine learning to detect malicious URL
     - Opera
     - Safari
 2. Must have EEE VPN/UP Wifi access.
-    - If you are currently in EEE and connected through eduroam, no need to use VPN.
-    - Otherwise, download the [EEEI VPN profile](https://drive.google.com/file/d/1wY9TiykZsIbkV0BWSkmfpHjN_IgaBR3b/view?usp=sharing) and Open VPN for [Windows](https://openvpn.net/downloads/openvpn-connect-v3-windows.msi)/[Mac](https://openvpn.net/downloads/openvpn-connect-v3-macos.dmg) and follow these guides ([Windows](https://drive.google.com/file/d/132MAgs0sM491BnlXBnbxgsnevXGb8aSY/view?usp=sharing), [Mac](https://drive.google.com/file/d/1TdOHaGkw_ENCccQMUHwhbdR457mO9Zui/view?usp=sharing)) access to the EEE network.
+    - If you are currently in UP and connected through eduroam or Dilnet, no need to use VPN.
+    - Otherwise, download the [EEEI VPN profile](https://drive.google.com/file/d/1wY9TiykZsIbkV0BWSkmfpHjN_IgaBR3b/view?usp=sharing) and OpenVPN for [Windows](https://openvpn.net/downloads/openvpn-connect-v3-windows.msi)/[Mac](https://openvpn.net/downloads/openvpn-connect-v3-macos.dmg) and follow these guides ([Windows](https://drive.google.com/file/d/132MAgs0sM491BnlXBnbxgsnevXGb8aSY/view?usp=sharing), [Mac](https://drive.google.com/file/d/1TdOHaGkw_ENCccQMUHwhbdR457mO9Zui/view?usp=sharing)) to access the EEE network.
 
 ### Installation Guide
 
 By installing this extension, you understand and agree to the following [data policies](#data-policies) that govern its usage.
 
-1. Download [ZIP file](https://drive.google.com/drive/folders/1vVljn![](my_video.mov)BPACA_qkXIbEdUBVkXc6avpo91q?usp=sharing) containing the extension program.
+1. Download the [ZIP file](https://drive.google.com/drive/folders/1vVljn![](my_video.mov)BPACA_qkXIbEdUBVkXc6avpo91q?usp=sharing) containing the extension program.
 2. Extract the contents of the ZIP file to your desired directory.
 3. Head to your browser's extension page, click manage extensions, and enable developer mode.
 4. Click the “Load unpacked” option.
@@ -45,7 +47,7 @@ https://github.com/SupernovaExe/SecURL/assets/63900699/c2ea4703-d5ec-4895-b3a3-4
 
 ### Casual Use
 
-Once you have set-up the extension, it automatically determines the maliciousness of the URL that you visit. For benign sites, a pop-up notification will show up. For malicious sites, the user will be redirected to a warning page and will be given the options to proceed to the site or to go back to the previously visited site.
+Once you have set-up the extension, it automatically determines the maliciousness of the URL that you visit. For benign sites, a pop-up notification will show up. For malicious sites, you will be redirected to a warning page and will be given the options to proceed to the site or to go back to the previously visited site.
 
 #### Benign Sites
 
@@ -57,17 +59,19 @@ https://github.com/SupernovaExe/SecURL/assets/63900699/3b6f61cf-c4ce-431a-a31a-d
 
 ### Reporting an Incorrect Benign Prediction
 
-https://github.com/SupernovaExe/SecURL/assets/63900699/c3e1a10f-e31c-4916-8333-6e5a70831de9
+https://github.com/SupernovaExe/SecURL/assets/63900699/f284801d-06da-47d2-857e-9450ef75ecf2
 
-Reporting incorrect benign predictions are done through the pop-up page. To report, click the extension icon and click the report button. A pop-up notification will show up to inform the user that a report has been sent. 
+Reporting incorrect benign predictions are done through the pop-up page. To report, click the extension icon and click the report button. A pop-up notification will show up to inform you that a report has been sent. 
 
 ### Reporting an Incorrect Malicious Prediction
 
 https://github.com/SupernovaExe/SecURL/assets/63900699/e86cbec0-a251-4524-b280-786da41bc754
 
-Reporting incorrect malicious predictions are done through the warning page. To report, click the report button in the warning page. A window will open up to check if you the user wants to proceed with reporting the prediction. A pop-up notification will also show up to inform the user after the report is sent.
+Reporting incorrect malicious predictions are done through the warning page. To report, click the report button in the warning page. A window will open up to check if you want to proceed with reporting the incorrect prediction. A pop-up notification will also show up to inform you after the report is sent.
 
 ### Accessing the Settings Page
+
+https://github.com/SupernovaExe/SecURL/assets/63900699/db69ccc7-e54d-4146-a6df-35c0d0b03eef
 
 To access the settings page, head over to the extensions button in your browser. You should be able to see all the extensions that you are currently using in your browser. Look for the SecURL extension and click the "more options" button beside it, usually it is a three-dot icon, and then click extension options. The settings page should show up. Make sure to click save for any changes that you have added to take effect. 
 
