@@ -25,7 +25,6 @@ temp_list_lexical = ['url_length',
                         'url_string_entropy',
                         'url_path_length',
                         'url_host_length',
-                        'get_tld',
                         'url_domain_len',
                         'url_num_subdomain',
                         'url_number_of_fragments',
@@ -50,7 +49,6 @@ temp_list_lexical = ['url_length',
                         'has_php_in_string',
                         'has_bin_in_string',
                         'has_personal_in_string',
-                        'url_scheme'
                         ]
     
 temp_list_content = ['blank_lines_count', 
@@ -126,14 +124,16 @@ def async_call():
     warm_up_predicted = pd.read_csv("databases/warm-up-predicted.csv")
 
     # Reads from current database
-    # test_actual = database_operations.column_to_pd("databases/securl_transactions.db", "actual")
-    # test_predicted = database_operations.column_to_pd("databases/securl_transactions.db", "prediction")
+    test_actual = database_operations.column_to_pd("databases/securl_transactions.db", "actual")
+    test_predicted = database_operations.column_to_pd("databases/securl_transactions.db", "prediction")
 
     # For Testing purposes
-    test_actual = pd.read_csv("databases/testing-actual.csv")
-    test_predicted = pd.read_csv("databases/testing-predicted.csv")
+    # test_actual = pd.read_csv("databases/testing-actual.csv")
+    # test_predicted = pd.read_csv("databases/testing-predicted.csv")
 
     is_conceptDrift = machine_learning.concept_drift_detector(warm_up_predicted, warm_up_actual, test_predicted, test_actual)
+
+    is_conceptDrift = 1
 
     if (is_conceptDrift):
         
@@ -175,13 +175,13 @@ def async_call():
         print(X_test_lexical_content.head())
         print(X_train_lexical_content.head())
 
-        # parameters_lexical = machine_learning.hyperparameter_tuning(X_train_lexical, y_train_lexical)
+        parameters_lexical = machine_learning.hyperparameter_tuning(X_train_lexical, y_train_lexical)
         parameters_lexical_content = machine_learning.hyperparameter_tuning(X_train_lexical_content, y_train_lexical_content)
 
         print("Starting re-training...")
 
-        # machine_learning.model_training(X_train_lexical, y_train_lexical, X_test_lexical, y_test_lexical, parameters_lexical, "model/xgb-lexical-test.sav")
-        # machine_learning.model_training(X_train_lexical_content, y_train_lexical_content, X_test_lexical_content, y_test_lexical_content, parameters_lexical_content, "model/xgb-lexical-content-test.sav")
+        machine_learning.model_training(X_train_lexical, y_train_lexical, X_test_lexical, y_test_lexical, parameters_lexical, "model/xgb-lexical-test.sav")
+        machine_learning.model_training(X_train_lexical_content, y_train_lexical_content, X_test_lexical_content, y_test_lexical_content, parameters_lexical_content, "model/xgb-lexical-content-test.sav")
 
         print("Retraining finished!")
 
