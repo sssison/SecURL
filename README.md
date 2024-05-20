@@ -19,7 +19,6 @@ SecURL is a web extension that utilizes machine learning to detect malicious URL
 
 1. Must use one of the following supported browsers:
     - Chrome
-    - Firefox
     - Edge
     - Opera
     - Safari
