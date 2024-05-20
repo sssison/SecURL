@@ -30,7 +30,7 @@ SecURL is a web extension that utilizes machine learning to detect malicious URL
 
 By installing this extension, you understand and agree to the following [data policies](#data-policies) that govern its usage.
 
-1. Download the [ZIP file](https://drive.google.com/drive/folders/1vVljn![](my_video.mov)BPACA_qkXIbEdUBVkXc6avpo91q?usp=sharing) containing the extension program.
+1. Download the [ZIP file](https://drive.google.com/file/d/1QvBJUl6y3R1obzmyI_FGQLe1TgqychBx/view?usp=drive_link) containing the extension program.
 2. Extract the contents of the ZIP file to your desired directory.
 3. Head to your browser's extension page, click manage extensions, and enable developer mode.
 4. Click the “Load unpacked” option.
