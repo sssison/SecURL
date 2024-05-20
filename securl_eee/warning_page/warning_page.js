@@ -25,8 +25,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 headingText = "Blacklisted Site";
                 descriptionText = "This site was flagged based on your blacklist filters in the extension settings! Head back to the previous page now, or proceed with caution. Don't forget to update your blacklisted sites in the Options page as well!";
             } else if (tabRedirectReason==="malicious"){
-                headingText = "Malicious Site";
-                descriptionText = "The current website has been flagged as potentially harmful or malicious. Visiting this site could pose security risks to your device and personal information. Exercise caution and consider navigating away from this page";
+                // headingText = "Malicious Site";
+                // descriptionText = "The current website has been flagged as potentially harmful or malicious. Visiting this site could pose security risks to your device and personal information. Exercise caution and consider navigating away from this page";
+                let isSecure = tabInfo["serverResult"]["secure"];
+                let lexResult = tabInfo["serverResult"]["rlex"];
+                let contResult = tabInfo["serverResult"]["rcont"];
+
+                if (isSecure){  // check for malicious-benign, benign-malicious, malicious-malicious
+                    if (lexResult!=="Benign"){
+                        if (contResult!=="Benign"){
+                            headingText = "High Risk: Suspicious Website";
+                            descriptionText = "This website (URL) and its content raise significant security concerns. There's a high risk of encountering malware, scams, or phishing attempts. It is highly advised to return to the previous page.";
+                        } else {
+                            headingText = "Moderate Risk: Suspicious URL";
+                            descriptionText = "The website you are trying to visit (URL) has some characteristics that raise caution flags. While the content itself may currently appear harmless, there's a chance it could be misleading or contain hidden risks.";
+                        }
+                    } else { // could only be benign lexical malicoius content
+                        headingText = "Moderate Risk: Suspicious Content";
+                        descriptionText = "The website you are trying to visit (URL) has some characteristics that raise caution flags. While the content itself may currently appear harmless, there's a chance it could be misleading or contain hidden risks.";
+                    }
+                } else {
+                    headingText = "Moderate Risk: Suspicious URL";
+                    descriptionText = "The website you are trying to visit (URL) appears legitimate at first glance, but the content you've encountered raises some red flags. Proceed with caution.";
+                }
             }
             document.getElementById("warning-header").innerText = headingText;
             document.getElementById("warning-description").innerText = descriptionText;

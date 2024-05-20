@@ -87,8 +87,31 @@ window.onload = async function(e){
                 urlStatusHeading = "Empty Site";
                 statusText = "The site appears to be empty or the contents cannot be fetched by the server. This could indicate a security risk.";
             } else if (tabProps["purpose"]==="malicious"){
-                urlStatusHeading = "Malicious";
-                statusText = "Alert: The current website has been flagged as potentially harmful or malicious. Visiting this site could pose security risks to your device and personal information.";
+                // added logic depending on content-based security (enhanced) and combination of lexical/content result
+                let isSecure = tabProps["serverResult"]["secure"];
+                let lexResult = tabProps["serverResult"]["rlex"];
+                let contResult = tabProps["serverResult"]["rcont"];
+                console.log(`Trying out ${tabProps["serverResult"]["url"]} with lex ${tabProps["serverResult"]["rlex"]} and cont ${tabProps["serverResult"]["rcont"]}`)
+
+                if (isSecure){  // check for malicious-benign, benign-malicious, malicious-malicious
+                    if (lexResult!=="Benign"){
+                        if (contResult!=="Benign"){
+                            urlStatusHeading = "Highly Suspicious Website";
+                            statusText = "This website (URL) and its content raise significant security concerns. There's a high risk of encountering malware, scams, or phishing attempts. It is highly advised to return to the previous page.";
+                        } else {
+                            urlStatusHeading = "Suspicious URL";
+                            statusText = "The website you are trying to visit (URL) has some characteristics that raise caution flags. While the content itself may currently appear harmless, there's a chance it could be misleading or contain hidden risks.";
+                        }
+                    } else { // could only be benign lexical malicoius content
+                        urlStatusHeading = "Suspicious Content";
+                        statusText = "The website you are trying to visit (URL) has some characteristics that raise caution flags. While the content itself may currently appear harmless, there's a chance it could be misleading or contain hidden risks.";
+                    }
+                } else {
+                    urlStatusHeading = "Suspicious URL";
+                    statusText = "The website you are trying to visit (URL) appears legitimate at first glance, but the content you've encountered raises some red flags. Proceed with caution.";
+                }
+
+
             } else if (true) {
                 statusText = "This page has been flagged for unidentified security reasons.";
             } else {
