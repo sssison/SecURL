@@ -150,7 +150,11 @@ function createNotif(options={}){
     // define a class style
     if (options.hasOwnProperty("style")){
         // TODO: add styles for safe (benign), danger (malicious), info (notif-style). Use switch or if-else chain
-
+        if (options["style"]==="danger"){
+            divElement.classList.add('notif-danger');
+        } else if (options["style"]==="safe"){
+            divElement.classList.add('notif-safe');
+        }
     }
 
     var h2Element = document.createElement('h2');

@@ -47,6 +47,8 @@ div.footer-div{
     margin-bottom: 20px;
     p{
         text-align: center;
+        font-size: 10px;
+        margin-bottom: 0;
     }
     span.report-error-text{
         text-decoration: underline;
@@ -63,10 +65,23 @@ div.header-div{
 
 div.contents{
    margin-bottom: 10px; 
+
+   &.sec-strength-line{
+        margin-bottom: 2px;
+        p{
+            text-align: center;
+            font-size: 14px;
+        }
+        span{
+            font-weight: bold;
+            text-decoration: underline;
+        }
+   }
 }
 
 div.content-div{
     padding: 15px 15px 0px;
+    margin-bottom: 20px;
 }
 
 div.active-url{
@@ -92,10 +107,22 @@ div.result{
     align-items: center;
     justify-content: center;
     gap: 8px;
+    margin: 15px 0;
+
+    span#test-response-span{
+        font-size: 18px;
+    }
 }
 
 div.result  img{
-    width: 40px;
+    width: 32px;
+}
+
+p.result-description{
+    font-style: italic;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 300;
 }
 
 .toggle {

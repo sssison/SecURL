@@ -61,11 +61,35 @@ const saveOptions = () => {
     (items) => {
       // Update status to let user know options were saved.
       const status = document.getElementById('status');
-      status.innerText = 'Options saved! The list: ' + blacklistInpList.toString() + " with enhanced security " + (isEnhancedSec ? "enabled" : "disabled");
+      // status.innerText = 'Options saved! The list: ' + blacklistInpList.toString() + " with enhanced security " + (isEnhancedSec ? "enabled" : "disabled");
       // status.textContent = 'Options saved.';
       // setTimeout(() => {
       //     status.innerText = '';
       // }, 1000);
+
+      // TODO: animate the notification box (from warning page)
+      console.log("DONE!");
+      document.getElementById("save-options").disabled = true;
+      document.querySelector("div.notif-box").style.display = "flex";
+      document.querySelector("div.notif-box").style.transition = "right 1s ease, opacity 0.3s linear";
+      document.querySelector("div.notif-box").classList.add("notransition");
+      document.querySelector("div.notif-box").style.right = `${-document.querySelector("div.notif-box").offsetWidth-20}px`;
+      document.querySelector("div.notif-box").style.visibility = `visible`;
+      document.querySelector("div.notif-box").style.opacity = `1`;
+      setTimeout(function(){
+          document.querySelector("div.notif-box").classList.remove("notransition");
+          document.querySelector("div.notif-box").style.right = `20px`;
+          // document.querySelector("div.notif-box").style.right = `20px`;
+      },10);
+      setTimeout(function(){
+          // document.querySelector("div.notif-box").classList.remove("notransition");
+      },50);
+      setTimeout(function(){
+          document.querySelector("div.notif-box").style.opacity = `0`;
+      },3000);
+      setTimeout(function(){
+          document.getElementById("save-options").disabled = false;
+      },3500);
     }
   );
 };

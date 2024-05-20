@@ -44,7 +44,18 @@ textarea#blacklist-input{
 }
 
 button#save-options{
-    margin-top: 20px;
+    margin-top: 0;
+    margin-bottom: 30px;
+    padding: 8px 10px;
+    background-color: #08415c;
+    color: white;
+    font-weight: normal;
+    border: 0;
+
+    &:hover{
+        background-color: #05293b;
+        cursor: pointer;
+    }
 }
 
 #options{
@@ -204,4 +215,34 @@ blockquote {
 blockquote span {
     margin-top:-5px;
     margin-bottom:-5px;
+}
+
+/* for animations / notifs */
+div.notif-box{
+    display: flex;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    flex-direction: column;
+    background-color: #ccefff;
+    padding: 15px;
+    visibility: hidden;
+    z-index: 99999;
+    max-width: 350px;
+
+    h2{
+        font-size: 22px;
+    }
+    p{
+        font-size: 14px;
+        /* line-height: 16px; */
+    }
+}
+
+/* for resetting animations / transitions */
+.notransition {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
 }

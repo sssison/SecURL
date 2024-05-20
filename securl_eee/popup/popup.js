@@ -96,19 +96,19 @@ window.onload = async function(e){
                 if (isSecure){  // check for malicious-benign, benign-malicious, malicious-malicious
                     if (lexResult!=="Benign"){
                         if (contResult!=="Benign"){
-                            urlStatusHeading = "Highly Suspicious Website";
-                            statusText = "This website (URL) and its content raise significant security concerns. There's a high risk of encountering malware, scams, or phishing attempts. It is highly advised to return to the previous page.";
+                            urlStatusHeading = "High Risk";
+                            statusText = "This website and its content raise significant security concerns. There's a high risk of encountering malware, scams, or phishing attempts.";
                         } else {
                             urlStatusHeading = "Suspicious URL";
-                            statusText = "The website you are trying to visit (URL) has some characteristics that raise caution flags. While the content itself may currently appear harmless, there's a chance it could be misleading or contain hidden risks.";
+                            statusText = "The website URL you are trying to visit has some characteristics that raise caution flags. While the content itself may appear harmless, it may contain hidden risks.";
                         }
                     } else { // could only be benign lexical malicoius content
                         urlStatusHeading = "Suspicious Content";
-                        statusText = "The website you are trying to visit (URL) has some characteristics that raise caution flags. While the content itself may currently appear harmless, there's a chance it could be misleading or contain hidden risks.";
+                        statusText = "The website URL appears legitimate at first glance, but the content you've encountered raises some caution flags.";
                     }
                 } else {
                     urlStatusHeading = "Suspicious URL";
-                    statusText = "The website you are trying to visit (URL) appears legitimate at first glance, but the content you've encountered raises some red flags. Proceed with caution.";
+                    statusText = "The website URL you are trying to visit has some characteristics that raise caution flags. While the content itself may appear harmless, it may contain hidden risks.";
                 }
 
 

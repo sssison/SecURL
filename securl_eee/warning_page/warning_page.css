@@ -33,11 +33,12 @@ div.warning-box{
     }
     p{
         text-align: justify;
+        font-size: 16px;
     }
     div.warning-content{
-        margin-bottom: 25px;
+        margin: 5px auto 25px;
         h1{
-            font-size: 1.75rem;
+            font-size: 32px;
             margin-bottom: 10px;
         }
     }
@@ -64,7 +65,7 @@ div.warning-box{
 }
 
 div.footer-div{
-    /* margin-top: 20px; */
+    margin-top: 20px;
     p{
         text-align: center;
     }
