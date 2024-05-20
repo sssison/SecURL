@@ -12,6 +12,7 @@ def is_dom_top(in_url):
     top_domains = pd.read_csv('top10milliondomains.csv', nrows = 1000)
     top_domains = pd.Series(top_domains['Domain'])
     top_domains = top_domains.to_list()
+    top_domains.append("upd.edu.ph")
 
     if in_domain in top_domains:
         return 1

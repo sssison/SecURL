@@ -147,7 +147,8 @@ def check_url():
     """
 
     inp_url = "(example url)"
-    is_secure = False 
+    is_secure = False
+    prediction_lexical, prediction_content = "Benign", "Benign"
     
     # Input validation: checks if URL is in request
     if 'inp_url' in request.args:
@@ -156,10 +157,6 @@ def check_url():
     # Input validation: checks if is_secure is in request
     if 'is_secure' in request.args:
         is_secure = (request.args['is_secure']=='enabled')
-
-    # ! temporary: strip off prefixes
-    inp_url = inp_url.replace("https://","",1)
-    inp_url = inp_url.replace("http://","",1)
 
     # check time and select the algorithm
     # TODO: replace the algorithms below with lexical-based and content-based detection
@@ -180,6 +177,7 @@ def check_url():
 
             # Generate prediction
             prediction = predict_maliciousness_lexical(url_features)
+            prediction_lexical = prediction
 
         else:
             try:
@@ -187,6 +185,10 @@ def check_url():
                 url_features_pandas_lexical = feature_generator.lexical_generator(temp_list_lexical, inp_url)
                 url_features_lexical = DMatrix(url_features_pandas_lexical)
                 
+                # ! temporary: strip off prefixes
+                inp_url = inp_url.replace("https://","",1)
+                inp_url = inp_url.replace("http://","",1)
+
                 # Lexical + Content
                 url_features_pandas_content = feature_generator.content_generator(temp_list_content, inp_url)
                 url_features_content = DMatrix(url_features_pandas_content)
@@ -219,12 +221,13 @@ def check_url():
 
     return dict(
         status=200,
-        score=random_score,
-        safety=(random_score>60),
         url=inp_url,
         time=(time_end-time_start),
         message=prediction,
-        fetched=(isFetchable==1)
+        fetched=(isFetchable==1),
+        secure=(is_secure==1),
+        rlex=prediction_lexical,
+        rcont=prediction_content
     )
     """
     Future reference:

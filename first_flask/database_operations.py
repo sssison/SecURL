@@ -74,7 +74,9 @@ def update_database(db, url):
     
     database = creating_connection(db)
 
-    query_id = "SELECT transaction_id, prediction from transactions WHERE url = \'"+url+"\' ORDER BY date DESC LIMIT 1"
+    query_id = "SELECT transaction_id, prediction from transactions WHERE url LIKE " + "\'%"+url+"%\' ORDER BY date DESC LIMIT 1"
+
+    print(query_id)
 
     current = database.cursor()
 
@@ -83,17 +85,18 @@ def update_database(db, url):
 
     records = current.fetchall()
 
-    query_update = "UPDATE transactions SET prediction = ? WHERE transaction_id = ?"
+    print(records)
 
-    for row in records:
-        trans_id = row[0]
-        current_prediction = row[1]
+    if  (records[0][1] == 1):
+        actual = 0
+    else:
+        actual = 1
 
-    new_prediction = 1 if (current_prediction == 0) else 0
+    query_update = "UPDATE transactions SET actual = ? WHERE transaction_id = ?"
 
     # Execute the Update Statement
     try:
-        current.execute(query_update, (new_prediction, trans_id))
+        current.execute(query_update, (actual, records[0][0]))
         database.commit()
         database.close()
     except:
